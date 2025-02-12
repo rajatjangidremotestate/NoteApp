@@ -4,7 +4,18 @@
   font-family: "Kaushan Script", serif;
   font-weight: 400;
   font-style: normal;
-  font-size: 26px;
+  font-size: 24px;
+}
+
+.font-custom {
+  font-family: "Source Sans 3", serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.active {
+  background-color: #ff7300db;
 }
 
 .bg-primary {
