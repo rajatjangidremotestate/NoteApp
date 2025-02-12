@@ -38,7 +38,7 @@ export default function LeftSideBar() {
   // Toggle the search and add note bar according to search icon
 
   return (
-    <div className="bg-custom_01 h-full w-1/5 py-7 flex flex-col gap-4">
+    <div className="bg-custom_01 h-full w-1/5 py-5 flex flex-col gap-4">
       {/* logo and search icon dev */}
       <div className="flex flex-row justify-between h-10 items-center px-5">
         {/* Title and pancile icon  */}
