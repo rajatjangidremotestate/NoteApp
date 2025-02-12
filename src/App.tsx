@@ -1,11 +1,7 @@
-import { useState } from "react";
+import FullBody from "./components/FullBody";
 
 function App() {
-  return (
-    <>
-      <h1>Note App</h1>
-    </>
-  );
+  return <FullBody />;
 }
 
 export default App;

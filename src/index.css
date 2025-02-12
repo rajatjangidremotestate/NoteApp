@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+.custom-title {
+  font-family: "Kaushan Script", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 26px;
+}
+
+.bg-primary {
+  background-color: #df7a00;
+}
+
+/* background for left and right side bars */
+.bg-custom_01 {
+  background-color: #181818;
+}
+
+/* background for center bar  */
+.bg-custom_02 {
+  background-color: #1c1c1c;
+}
+
+/* background for selected folder, all notes  */
+
+.bg-custom_03 {
+  background-color: #ffffff08;
+}
+
+/* background for selected note */
+.bg-custom_04 {
+  background-color: #ffffff1a;
+}
+
+/* background for new Note section,rightBar Lines */
+
+.bg-custom_04 {
+  background-color: #ffffff0d;
+}
+
+/* text color one  */
+.text-custom_01 {
+  color: #ffffff99;
+}
