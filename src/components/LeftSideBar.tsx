@@ -8,12 +8,19 @@ import favoritesIcon from "../assets/icons/Favorites.svg";
 import trashIcon from "../assets/icons/Trash.svg";
 import archivedIcon from "../assets/icons/ArchivedNote.svg";
 import { useRef, useState } from "react";
+import { useFetchRecentNotes } from "../api/apiAxios.tsx";
+import { NavLink } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 export default function LeftSideBar() {
   // For Seach button and showing the search bar and ad notes
   const searchIconRef = useRef(null);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const { data, isLoading, isError } = useFetchRecentNotes();
 
+  const { noteId } = useParams();
+
+  // ToggleSearch Bar Function
   const toggleSearchBar = () => {
     setIsSearchVisible((prev) => !prev);
 
@@ -26,16 +33,22 @@ export default function LeftSideBar() {
   };
 
   // All Data Arrays
-  const recentNotes = [
-    "Reflection on the Month of June",
-    "Project proposal",
-    "Travel itinerary",
-    "random",
-  ];
+  // const recentNotes = [
+  //   "Reflection on the Month of June",
+  //   "Project proposal",
+  //   "Travel itinerary",
+  //   "random",
+  // ];
+  const recentNotes = data?.recentNotes || []; // Extracting the array safely
+  console.log("RNotes: " + recentNotes);
 
   const folders = ["Personal", "Work", "Travel", "Events", "Finances"];
 
   // Toggle the search and add note bar according to search icon
+
+  //Testing Loading and all
+  if (isLoading) return <p>Loading recent notes...</p>;
+  if (isError) return <p>Failed to load recent notes.</p>;
 
   return (
     <div className="bg-custom_01 h-full w-1/5 py-5 flex flex-col gap-4">
@@ -104,21 +117,21 @@ export default function LeftSideBar() {
 
         {/* All Recent Notes */}
         <ul className="flex flex-col gap-1">
-          {recentNotes.slice(0, 3).map((note, index) => (
-            <li
-              key={index}
-              className={`flex items-center gap-2 px-4 py-1 hover:cursor-pointer  ${
-                index === 0 ? "active" : ""
-              }`}
-            >
-              <img src={recentNoteIcon} alt="" className="h-4" />
-              <p
-                className={`text-white font-custom text-sm ${
-                  index === 0 ? "opacity-full" : "opacity-60"
-                }`}
+          {recentNotes.slice(0, 3).map((note) => (
+            <li key={note.id}>
+              <NavLink
+                to={`/folder/${note.folder.id}/note/${note.id}`}
+                className="flex gap-2 px-4 py-1 hover:bg-gray-800"
               >
-                {note}
-              </p>
+                <img src={recentNoteIcon} alt="" className="h-4" />
+                <p
+                  className={`text-white font-custom text-sm ${
+                    note.id === noteId ? "opacity-full" : "opacity-60"
+                  }`}
+                >
+                  {note.title}
+                </p>
+              </NavLink>
             </li>
           ))}
         </ul>
@@ -127,9 +140,13 @@ export default function LeftSideBar() {
       {/* All Folders Div */}
       <div className="flex flex-col gap-1">
         {/* Folder Heading and add new Folder icon  */}
-        <div className="flex justify-between px-4">
+        <div className="flex justify-between px-4 items-center">
           <p className="font-custom text-white opacity-60">Folders</p>
-          <img src={addFloderIcon} alt="" className="hover:cursor-pointer" />
+          <img
+            src={addFloderIcon}
+            alt=""
+            className="hover:cursor-pointer h-4"
+          />
         </div>
 
         {/* All Folders  */}
