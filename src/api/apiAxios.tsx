@@ -1,11 +1,16 @@
-// import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
 const API_BASE_URL = "/api";
 
-interface RecentNotesResponse {
-  recentNotes: Note[]; // Assuming API returns an object with a `recentNotes` array
+// Define a type for the API response
+
+interface Folder {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string;
 }
 
 interface Note {
@@ -27,15 +32,114 @@ interface Note {
   };
 }
 
+interface NotesResponse {
+  recentNotes: Note[];
+}
+
+interface FolderResponse {
+  folders: Folder[];
+}
+
 // Fetch recent notes
 export const useFetchRecentNotes = () => {
-  return useQuery<RecentNotesResponse>({
-    queryKey: ["recent-notes"], // queryKey should be inside an object
+  return useQuery<NotesResponse>({
+    queryKey: ["recent-notes"],
     queryFn: async () => {
       const { data } = await axios.get(`${API_BASE_URL}/notes/recent`);
       return data;
     },
-    staleTime: 5 * 60 * 1000, // Optional: Cache time in milliseconds
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+// Fetch all folders
+export const useFetchFolders = () => {
+  return useQuery<FolderResponse>({
+    queryKey: ["folders"],
+    queryFn: async () => {
+      const { data } = await axios.get(`${API_BASE_URL}/folders`);
+      return data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+//folder creation payload
+interface NewFolder {
+  name: string;
+}
+
+export const useCreateFolder = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (newFolder: NewFolder) => {
+      const { data } = await axios.post(`${API_BASE_URL}/folders`, newFolder);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["folders"] });
+    },
+  });
+};
+
+// update payload
+interface UpdateFolderPayload {
+  folderId: string;
+  updatedData: { name: string };
+}
+
+export const useUpdateFolder = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ folderId, updatedData }: UpdateFolderPayload) => {
+      const { data } = await axios.patch(
+        `${API_BASE_URL}/folders/${folderId}`,
+        updatedData
+      );
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["folders"] });
+    },
+  });
+};
+
+// Fetch notes by folder
+interface FetchFolderNotesParams {
+  folderId: string;
+}
+
+export const useFetchFolderNotes = ({ folderId }: FetchFolderNotesParams) => {
+  return useQuery({
+    queryKey: ["folder-notes", folderId],
+    queryFn: async () => {
+      const { data } = await axios.get(`${API_BASE_URL}/notes`, {
+        params: {
+          folderId,
+          archived: false,
+          favorite: false,
+          deleted: false,
+        },
+      });
+      return data;
+    },
+    enabled: !!folderId, // check for folderId is provided or not
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+//Fetch Note By Id
+export const useFetchNote = (noteId: string | null) => {
+  return useQuery({
+    queryKey: ["note", noteId],
+    queryFn: async () => {
+      if (!noteId) throw new Error("No noteId provided");
+      const { data } = await axios.get(`${API_BASE_URL}/notes/${noteId}`);
+      return data;
+    },
+    enabled: !!noteId, // Only run if noteId is truthy
   });
 };
 
@@ -48,32 +152,6 @@ export const useFetchRecentNotes = () => {
 //       return data;
 //     },
 //     { staleTime: 5 * 60 * 1000 }
-//   );
-// };
-
-// // Fetch notes by folder
-// export const useFetchFolderNotes = (folderId) => {
-//   return useQuery(
-//     ["folder", folderId],
-//     async () => {
-//       const { data } = await axios.get(`${API_BASE_URL}/notes`, {
-//         params: { folderId },
-//       });
-//       return data;
-//     },
-//     { enabled: !!folderId, staleTime: 5 * 60 * 1000 }
-//   );
-// };
-
-// // Fetch single note
-// export const useFetchNote = (noteId) => {
-//   return useQuery(
-//     ["note", noteId],
-//     async () => {
-//       const { data } = await axios.get(`${API_BASE_URL}/notes/${noteId}`);
-//       return data;
-//     },
-//     { enabled: !!noteId }
 //   );
 // };
 
@@ -130,74 +208,6 @@ export const useFetchRecentNotes = () => {
 //     },
 //     {
 //       onSuccess: () => queryClient.invalidateQueries("notes"),
-//     }
-//   );
-// };
-
-// // Fetch all folders
-// export const useFetchFolders = () => {
-//   return useQuery(
-//     "folders",
-//     async () => {
-//       const { data } = await axios.get(`${API_BASE_URL}/folders`);
-//       return data;
-//     },
-//     { staleTime: 5 * 60 * 1000 }
-//   );
-// };
-
-// // Fetch single folder
-// export const useFetchFolder = (folderId) => {
-//   return useQuery(
-//     ["folder", folderId],
-//     async () => {
-//       const { data } = await axios.get(`${API_BASE_URL}/folders/${folderId}`);
-//       return data;
-//     },
-//     { enabled: !!folderId }
-//   );
-// };
-
-// // Create new folder
-// export const useCreateFolder = () => {
-//   const queryClient = useQueryClient();
-//   return useMutation(
-//     async (newFolder) => {
-//       const { data } = await axios.post(`${API_BASE_URL}/folders`, newFolder);
-//       return data;
-//     },
-//     {
-//       onSuccess: () => queryClient.invalidateQueries("folders"),
-//     }
-//   );
-// };
-
-// // Update folder name
-// export const useUpdateFolder = () => {
-//   const queryClient = useQueryClient();
-//   return useMutation(
-//     async ({ folderId, updatedData }) => {
-//       const { data } = await axios.patch(
-//         `${API_BASE_URL}/folders/${folderId}`,
-//         updatedData
-//       );
-//       return data;
-//     },
-//     {
-//       onSuccess: () => queryClient.invalidateQueries("folders"),
-//     }
-//   );
-// };
-
-// // Delete folder
-// export const useDeleteFolder = () => {
-//   const queryClient = useQueryClient();
-//   return useMutation(
-//     async (folderId) => {
-//       await axios.delete(`${API_BASE_URL}/folders/${folderId}`);
-//     },
-//     {
-//       onSuccess: () => queryClient.invalidateQueries("folders"),
 //     }
 //   );
 // };

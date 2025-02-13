@@ -1,4 +1,4 @@
-import LeftSideBar from "./LeftSideBar";
+import LeftSideBar from "./LeftSideBar/LeftSideBar";
 import CenterBar from "./CenterBar";
 import RightSideBar from "./RightSideBar";
 
