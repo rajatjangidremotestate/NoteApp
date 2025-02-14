@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
-const API_BASE_URL = "/api";
-
-// Define a type for the API response
+const AxiosApi = axios.create({
+  baseURL: "https://nowted-server.remotestate.com",
+});
 
 interface Folder {
   id: string;
@@ -45,7 +45,7 @@ export const useFetchRecentNotes = () => {
   return useQuery<NotesResponse>({
     queryKey: ["recent-notes"],
     queryFn: async () => {
-      const { data } = await axios.get(`${API_BASE_URL}/notes/recent`);
+      const { data } = await AxiosApi.get(`/notes/recent`);
       return data;
     },
     staleTime: 5 * 60 * 1000,
@@ -57,7 +57,7 @@ export const useFetchFolders = () => {
   return useQuery<FolderResponse>({
     queryKey: ["folders"],
     queryFn: async () => {
-      const { data } = await axios.get(`${API_BASE_URL}/folders`);
+      const { data } = await AxiosApi.get(`/folders`);
       return data;
     },
     staleTime: 5 * 60 * 1000,
@@ -74,7 +74,7 @@ export const useCreateFolder = () => {
 
   return useMutation({
     mutationFn: async (newFolder: NewFolder) => {
-      const { data } = await axios.post(`${API_BASE_URL}/folders`, newFolder);
+      const { data } = await AxiosApi.post(`/folders`, newFolder);
       return data;
     },
     onSuccess: () => {
@@ -94,8 +94,8 @@ export const useUpdateFolder = () => {
 
   return useMutation({
     mutationFn: async ({ folderId, updatedData }: UpdateFolderPayload) => {
-      const { data } = await axios.patch(
-        `${API_BASE_URL}/folders/${folderId}`,
+      const { data } = await AxiosApi.patch(
+        `/folders/${folderId}`,
         updatedData
       );
       return data;
@@ -112,23 +112,54 @@ interface FetchFolderNotesParams {
 }
 
 export const useFetchFolderNotes = ({ folderId }: FetchFolderNotesParams) => {
+  // Determining the query params based on folderId
+  const queryParams = {
+    folderId:
+      folderId !== "favoriteNotes" &&
+      folderId !== "trashNotes" &&
+      folderId !== "archivedNotes"
+        ? folderId
+        : undefined, // Pass folderId only if it's not a special case
+    archived: folderId === "archivedNotes" ? true : false,
+    favorite: folderId === "favoriteNotes" ? true : false,
+    deleted: folderId === "trashNotes" ? true : false,
+  };
+
   return useQuery({
     queryKey: ["folder-notes", folderId],
     queryFn: async () => {
-      const { data } = await axios.get(`${API_BASE_URL}/notes`, {
-        params: {
-          folderId,
-          archived: false,
-          favorite: false,
-          deleted: false,
-        },
+      const { data } = await AxiosApi.get(`/notes`, {
+        params: queryParams,
       });
       return data;
     },
-    enabled: !!folderId, // check for folderId is provided or not
-    staleTime: 5 * 60 * 1000,
+    enabled: !!folderId, // Ensure the query only runs if folderId is available
+    staleTime: 5 * 60 * 1000, // Cache data for 5 minutes
   });
 };
+
+// interface FetchFolderNotesParams {
+//   folderId: string;
+// }
+
+// export const useFetchFolderNotes = ({ folderId }: FetchFolderNotesParams) => {
+//   return useQuery({
+//     queryKey: ["folder-notes", folderId],
+//     queryFn: async () => {
+//       const { data } = await axios.get(`${API_BASE_URL}/notes`, {
+//         params: {
+//           folderId,
+//           archived: false,
+//           favorite: false,
+//           deleted: false,
+//         },
+//       });
+//       return data;
+//     },
+//     enabled: !!folderId, // check for folderId is provided or not
+//     staleTime: 5 * 60 * 1000,
+//   });
+// };
 
 //Fetch Note By Id
 export const useFetchNote = (noteId: string | null) => {
@@ -136,7 +167,7 @@ export const useFetchNote = (noteId: string | null) => {
     queryKey: ["note", noteId],
     queryFn: async () => {
       if (!noteId) throw new Error("No noteId provided");
-      const { data } = await axios.get(`${API_BASE_URL}/notes/${noteId}`);
+      const { data } = await AxiosApi.get(`/notes/${noteId}`);
       return data;
     },
     enabled: !!noteId, // Only run if noteId is truthy
@@ -158,7 +189,7 @@ export const useCreateNote = () => {
 
   return useMutation({
     mutationFn: async (newNote: NoteData) => {
-      const { data } = await axios.post(`${API_BASE_URL}/notes`, newNote);
+      const { data } = await AxiosApi.post(`/notes`, newNote);
       return data;
     },
     onSuccess: () => {

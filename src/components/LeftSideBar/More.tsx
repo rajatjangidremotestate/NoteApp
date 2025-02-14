@@ -1,6 +1,8 @@
+import { NavLink, useParams } from "react-router-dom";
 import { favoritesIcon, trashIcon, archivedIcon } from "./ImportsAll";
 
 export default function More() {
+  const { folderId } = useParams();
   return (
     <div className="flex flex-col gap-1">
       {/* More Heading  */}
@@ -11,32 +13,45 @@ export default function More() {
         <ul>
           {/* Favorites */}
           <li>
-            <a href="" className="flex px-4 py-1 gap-2 items-center">
+            <NavLink
+              to={`/folder/favoriteNotes`}
+              className="flex px-4 py-1 gap-2 items-center hover:bg-gray-800"
+            >
               <img src={favoritesIcon} alt="" className="h-4" />
-              <p className="flex font-custom text-white opacity-60 text-sm">
+              <p
+                className={`flex font-custom text-white text-sm  ${
+                  folderId === "favoriteNotes" ? "opacity-100" : "opacity-60"
+                }`}
+              >
                 Favorites
               </p>
-            </a>
+            </NavLink>
           </li>
 
           {/* Trash */}
           <li>
-            <a href="" className="flex px-4 py-1 gap-2 items-center">
+            <NavLink
+              to={`/folder/trashNotes`}
+              className="flex px-4 py-1 gap-2 items-center hover:bg-gray-800"
+            >
               <img src={trashIcon} alt="" className="h-4" />
               <p className="flex font-custom text-white opacity-60 text-sm">
                 Trash
               </p>
-            </a>
+            </NavLink>
           </li>
 
           {/* Archived Notes */}
           <li>
-            <a href="" className="flex px-4 py-1 gap-2 items-center">
+            <NavLink
+              to={`/folder/archivedNotes`}
+              className="flex px-4 py-1 gap-2 items-center hover:bg-gray-800"
+            >
               <img src={archivedIcon} alt="" className="h-4" />
               <p className="flex font-custom text-white opacity-60 text-sm">
                 Archived Notes
               </p>
-            </a>
+            </NavLink>
           </li>
         </ul>
       </div>

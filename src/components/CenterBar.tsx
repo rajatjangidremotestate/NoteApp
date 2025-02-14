@@ -3,13 +3,43 @@ import { useFetchFolderNotes } from "../api/apiAxios";
 import { NavLink } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
+import { useEffect, useState } from "react";
 
 export default function CenterBar() {
-  const { folderId } = useParams<string>();
+  const { folderId } = useParams<{ folderId: string }>();
+  const [folderRoute, setFolderRoute] = useState("");
   // console.log(folderId);
+
   const { data: notes, isLoading, isError } = useFetchFolderNotes({ folderId });
+
   const currnNotes = notes?.notes || [];
   const { noteId } = useParams();
+
+  // const folderName = currnNotes.length > 0 ? currnNotes[0].folder.name : "";
+  // console.log(folderName);
+
+  const folderName =
+    folderId === "favoriteNotes"
+      ? "Favorite Notes"
+      : folderId === "archivedNotes"
+      ? "Archived Notes"
+      : folderId === "trashNotes"
+      ? "Trash Notes"
+      : currnNotes.length > 0
+      ? currnNotes[0].folder.name
+      : "";
+
+  useEffect(() => {
+    const newFolderName =
+      folderId === "favoriteNotes"
+        ? "favoriteNotes"
+        : folderId === "archivedNotes"
+        ? "archivedNotes"
+        : folderId === "trashNotes"
+        ? "trashNotes"
+        : folderId;
+    setFolderRoute(newFolderName);
+  }, [folderId]);
 
   if (isLoading)
     return (
@@ -25,8 +55,8 @@ export default function CenterBar() {
           >
             <CircularProgress
               sx={{ color: "#ffffff" }}
-              size={10}
-              thickness={8}
+              size={15}
+              thickness={6}
             />
           </Box>
           <p className="font-custom text-lg text-white px-2">Loading...</p>
@@ -52,14 +82,15 @@ export default function CenterBar() {
   return (
     <div className="bg-custom_02 h-full w-1/5 py-5 flex flex-col gap-2">
       {/* Header Text  */}
-      <p className="font-custom text-lg text-white px-4">Personal</p>
+      <p className="font-custom text-lg text-white px-4">{folderName}</p>
 
       {/* All Current Shown Notes  */}
       <ul className="flex flex-col gap-1.5 px-4 h-full overflow-y-auto">
         {currnNotes.map((note) => (
           <li key={note.id}>
             <NavLink
-              to={`/folder/${note.folderId}/note/${note.id}`}
+              // to={`/folder/${note.folderId}/note/${note.id}`}
+              to={`/folder/${folderRoute}/note/${note.id}`}
               className={` rounded-sm p-3 flex flex-col gap-1.5  ${
                 note.id === noteId ? "active" : "hover:bg-gray-800 bg-custom_03"
               }`}

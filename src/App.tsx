@@ -12,7 +12,7 @@ function App() {
       <Routes>
         <Route path="/folder/:folderId/note/:noteId" element={<FullBody />} />
         <Route path="/folder/:folderId" element={<FullBody />} />
-        <Route path="/" element={<FullBody />} />
+        <Route path="/*" element={<FullBody />} />
         {/* <Route path="/" element={<Navigate to="/" />} /> */}
       </Routes>
     </Router>

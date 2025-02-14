@@ -4,6 +4,8 @@ import folderIcon from "../../assets/icons/normalFolder.svg";
 import { useFetchFolders, useFetchNote } from "../../api/apiAxios";
 import { useParams } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
+import CircularProgress from "@mui/material/CircularProgress";
+import Box from "@mui/material/Box";
 
 export default function NoteView() {
   const [isOpen, setIsOpen] = useState(false);
@@ -49,7 +51,26 @@ export default function NoteView() {
         </div>
       </div>
     );
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading)
+    return (
+      <div className="bg-custom_01 h-full w-3/5 p-10 flex flex-col gap-3 justify-center items-center">
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "110px",
+          }}
+        >
+          <CircularProgress
+            sx={{ color: "#ffffff" }}
+            size={100}
+            thickness={6}
+          />
+        </Box>
+        <p className="text-white font-custom text-5xl">Loading...</p>
+      </div>
+    );
   if (error) return <p>Error fetching note: {error.message}</p>;
 
   return (

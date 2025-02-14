@@ -1,7 +1,7 @@
 import pancileIcon from "../../assets/icons/pancile_01.svg";
 import searchIcon from "../../assets/icons/search_02.svg";
 import addIcon from "../../assets/icons/AddIcon.svg";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import More from "./More.tsx";
 import Folders from "./Folders.tsx";
 import RecentNotes from "./RecentNotes.tsx";
@@ -9,8 +9,44 @@ import { Link, useParams } from "react-router-dom";
 export default function LeftSideBar() {
   // For Seach button and showing the search bar and ad notes
   const searchIconRef = useRef(null);
-  const { folderId } = useParams();
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+
+  const [isFolderSelected, setIsFolderSelected] = useState(true);
+  const [isClicked, setIsClicked] = useState(false);
+
+  const { folderId: routeFolderId } = useParams<{ folderId: string }>(); // Get folderId from URL
+  const [folderId, setFolderId] = useState<string | undefined>(routeFolderId); // State to store folderId
+  const [route, setRoute] = useState(`/folder/${folderId}/note/newNote`);
+
+  useEffect(() => {
+    if (routeFolderId) {
+      setFolderId(routeFolderId); // Update folderId state when route changes
+      setRoute(`/folder/${folderId}/note/newNote`);
+    }
+  }, [routeFolderId, folderId]); // Runs every time routeFolderId changes
+
+  useEffect(() => {
+    if (
+      folderId === undefined ||
+      folderId === "favoriteNotes" ||
+      folderId === "archivedNotes" ||
+      folderId === "trashNotes"
+    ) {
+      if (
+        (folderId === undefined ||
+          folderId === "favoriteNotes" ||
+          folderId === "archivedNotes" ||
+          folderId === "trashNotes") &&
+        isClicked === true
+      ) {
+        alert("Select one folder from folders");
+        setIsClicked(false);
+      }
+      setIsFolderSelected(false);
+    } else {
+      setIsFolderSelected(true);
+    }
+  }, [isClicked, folderId]);
 
   // ToggleSearch Bar Function
   const toggleSearchBar = () => {
@@ -76,8 +112,9 @@ export default function LeftSideBar() {
         {!isSearchVisible && (
           <div className="bg-custom_04 w-full h-full rounded-sm hover:cursor-pointer">
             <Link
-              to={`/folder/${folderId}/note/newNote`}
+              to={isFolderSelected ? route : ""}
               className="flex flex-row items-center justify-center h-full "
+              onClick={() => setIsClicked(true)}
             >
               <img src={addIcon} alt="" className="h-4" />
               <p className="font-custom font-bold text-white">New Note</p>
