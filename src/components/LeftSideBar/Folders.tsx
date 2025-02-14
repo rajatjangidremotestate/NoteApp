@@ -1,6 +1,9 @@
 import { NavLink, useParams } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
+
+import { ToastContainer, toast } from "react-toastify";
+
 import {
   useFetchFolders,
   useCreateFolder,
@@ -18,6 +21,10 @@ export default function Folders() {
   const { mutate: mutateNewFolder } = useCreateFolder();
   const { mutate: mutateUpdateFolder } = useUpdateFolder();
   const folders = data?.folders || [];
+  // console.log(folders);
+
+  const notify_01 = () => toast.success("New Folder Added !");
+  const notify_02 = () => toast.success("Folder Updated !");
 
   // For Editing Folder Name
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -28,6 +35,13 @@ export default function Folders() {
   const [isAdding, setIsAdding] = useState(false);
 
   const { folderId, noteId } = useParams();
+
+  // useEffect(() => {
+  //   if (folderId === undefined) {
+  //     const firstFolderId = folders.length > 0 && folders[0].id;
+  //     <Navigate to={`/folder/${firstFolderId}`} />;
+  //   }
+  // }, [folderId, folders]);
 
   // When we select any note then automatically select that note folder and focus it
   const activeRef = useRef(null);
@@ -51,6 +65,7 @@ export default function Folders() {
       { name: "New_Folder" },
       {
         onSuccess: () => {
+          notify_01();
           setIsAdding(false); // Stop loading when successful
         },
         onError: () => {
@@ -76,6 +91,7 @@ export default function Folders() {
       { folderId: id, updatedData: { name: newName } },
       {
         onSuccess: () => {
+          notify_02();
           setIsUpdating(false); // Stop loading when successful
         },
         onError: () => {
@@ -93,6 +109,7 @@ export default function Folders() {
 
   return (
     <div className="flex flex-col gap-1 border border-gray-800">
+      <ToastContainer />
       {/* Folder Heading and add new Folder icon  */}
       <div className="flex justify-between px-4 items-center border-b border-b-white border-dotted">
         <div className="flex items-center gap-1.5">

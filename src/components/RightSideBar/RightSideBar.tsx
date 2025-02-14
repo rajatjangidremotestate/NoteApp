@@ -2,6 +2,7 @@ import NoteView from "./NoteView";
 import NewNoteView from "./NewNoteView";
 import { useParams } from "react-router-dom";
 import selectNotForViewIcon from "../../assets/icons/SelectNotForView.svg";
+
 export default function RightSideBar() {
   const { noteId } = useParams<{ noteId?: string }>();
   // console.log(noteId);

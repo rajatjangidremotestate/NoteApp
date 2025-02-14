@@ -4,6 +4,7 @@ import folderIcon from "../../assets/icons/normalFolder.svg";
 import dateIcon from "../../assets/icons/date.svg";
 import { useCreateNote, useFetchFolders } from "../../api/apiAxios";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast, ToastContainer } from "react-toastify";
 
 export default function AddNewNotePage() {
   const { folderId } = useParams<{ folderId: string }>();
@@ -25,6 +26,8 @@ export default function AddNewNotePage() {
 
   const queryClient = useQueryClient();
 
+  const notify_01 = () => toast.success("New Note Added !");
+
   const handleCreateNote = async () => {
     if (!title.trim()) {
       alert("Folder ID and title are required!");
@@ -38,7 +41,8 @@ export default function AddNewNotePage() {
           queryClient.refetchQueries({
             queryKey: ["folder-notes", variables.folderId],
           });
-          console.log("Note created successfully!");
+          // console.log("Note created successfully!");
+          notify_01();
           setTitle("Default Title"); // Clear title field
           setContent("Default Content"); // Clear content field
         },
@@ -52,6 +56,8 @@ export default function AddNewNotePage() {
   return (
     <div className="bg-custom_01 h-full w-3/5 p-10 flex flex-col gap-3">
       {/* Title Input */}
+      <ToastContainer position="top-right" />
+
       <input
         type="text"
         value={title}

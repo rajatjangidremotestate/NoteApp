@@ -6,6 +6,7 @@ import More from "./More.tsx";
 import Folders from "./Folders.tsx";
 import RecentNotes from "./RecentNotes.tsx";
 import { Link, useParams } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 export default function LeftSideBar() {
   // For Seach button and showing the search bar and ad notes
   const searchIconRef = useRef(null);
@@ -17,6 +18,8 @@ export default function LeftSideBar() {
   const { folderId: routeFolderId } = useParams<{ folderId: string }>(); // Get folderId from URL
   const [folderId, setFolderId] = useState<string | undefined>(routeFolderId); // State to store folderId
   const [route, setRoute] = useState(`/folder/${folderId}/note/newNote`);
+
+  const notify_03 = () => toast.warning("Select one folder !");
 
   useEffect(() => {
     if (routeFolderId) {
@@ -41,6 +44,7 @@ export default function LeftSideBar() {
       ) {
         alert("Select one folder from folders");
         setIsClicked(false);
+        // notify_03();
       }
       setIsFolderSelected(false);
     } else {
@@ -65,6 +69,8 @@ export default function LeftSideBar() {
     <div className="bg-custom_01 h-full w-1/5 py-5 flex flex-col gap-4">
       {/* logo and search icon dev */}
       <div className="flex flex-row justify-between h-10 items-center px-5">
+        {/* <ToastContainer /> */}
+
         {/* Title and pancile icon  */}
         <div className="flex gap-1.5 hover:cursor-pointer">
           <p className="text-white custom-title">Nowted</p>

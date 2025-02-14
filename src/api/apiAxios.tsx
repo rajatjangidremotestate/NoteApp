@@ -120,9 +120,9 @@ export const useFetchFolderNotes = ({ folderId }: FetchFolderNotesParams) => {
       folderId !== "archivedNotes"
         ? folderId
         : undefined, // Pass folderId only if it's not a special case
-    archived: folderId === "archivedNotes" ? true : false,
-    favorite: folderId === "favoriteNotes" ? true : false,
-    deleted: folderId === "trashNotes" ? true : false,
+    archived: folderId === "archivedNotes" ? true : undefined,
+    favorite: folderId === "favoriteNotes" ? true : undefined,
+    deleted: folderId === "trashNotes" ? true : undefined,
   };
 
   return useQuery({
@@ -137,29 +137,6 @@ export const useFetchFolderNotes = ({ folderId }: FetchFolderNotesParams) => {
     staleTime: 5 * 60 * 1000, // Cache data for 5 minutes
   });
 };
-
-// interface FetchFolderNotesParams {
-//   folderId: string;
-// }
-
-// export const useFetchFolderNotes = ({ folderId }: FetchFolderNotesParams) => {
-//   return useQuery({
-//     queryKey: ["folder-notes", folderId],
-//     queryFn: async () => {
-//       const { data } = await axios.get(`${API_BASE_URL}/notes`, {
-//         params: {
-//           folderId,
-//           archived: false,
-//           favorite: false,
-//           deleted: false,
-//         },
-//       });
-//       return data;
-//     },
-//     enabled: !!folderId, // check for folderId is provided or not
-//     staleTime: 5 * 60 * 1000,
-//   });
-// };
 
 //Fetch Note By Id
 export const useFetchNote = (noteId: string | null) => {
@@ -198,6 +175,22 @@ export const useCreateNote = () => {
   });
 };
 
+// Update note (favorite/archive/status)
+export const useUpdateNote = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ noteId, updatedData }) => {
+      const { data } = await AxiosApi.patch(`/notes/${noteId}`, updatedData);
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries(["note", variables.noteId]);
+      queryClient.invalidateQueries(["notes"]);
+    },
+  });
+};
+
 // // Fetch all notes
 // export const useFetchNotes = () => {
 //   return useQuery(
@@ -207,23 +200,6 @@ export const useCreateNote = () => {
 //       return data;
 //     },
 //     { staleTime: 5 * 60 * 1000 }
-//   );
-// };
-
-// // Update note (favorite/archive/status)
-// export const useUpdateNote = () => {
-//   const queryClient = useQueryClient();
-//   return useMutation(
-//     async ({ noteId, updatedData }) => {
-//       const { data } = await axios.patch(
-//         `${API_BASE_URL}/notes/${noteId}`,
-//         updatedData
-//       );
-//       return data;
-//     },
-//     {
-//       onSuccess: () => queryClient.invalidateQueries("notes"),
-//     }
 //   );
 // };
 
