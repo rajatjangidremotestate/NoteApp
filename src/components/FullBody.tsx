@@ -1,6 +1,6 @@
 import LeftSideBar from "./LeftSideBar/LeftSideBar";
 import CenterBar from "./CenterBar";
-import RightSideBar from "./RightSideBar";
+import RightSideBar from "./RightSideBar/RightSideBar";
 
 export default function FullBody() {
   return (

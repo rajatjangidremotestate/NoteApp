@@ -64,7 +64,7 @@ export const useFetchFolders = () => {
   });
 };
 
-//folder creation payload
+//Newfolder creation payload
 interface NewFolder {
   name: string;
 }
@@ -83,7 +83,7 @@ export const useCreateFolder = () => {
   });
 };
 
-// update payload
+// updateFolder payload
 interface UpdateFolderPayload {
   folderId: string;
   updatedData: { name: string };
@@ -143,6 +143,30 @@ export const useFetchNote = (noteId: string | null) => {
   });
 };
 
+// Define the Note type
+interface NoteData {
+  folderId: string;
+  title: string;
+  content: string;
+  isFavorite: boolean;
+  isArchived: boolean;
+}
+
+// Hook to create a new note
+export const useCreateNote = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (newNote: NoteData) => {
+      const { data } = await axios.post(`${API_BASE_URL}/notes`, newNote);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes", "folder-notes"] }); // Refresh notes list
+    },
+  });
+};
+
 // // Fetch all notes
 // export const useFetchNotes = () => {
 //   return useQuery(
@@ -152,20 +176,6 @@ export const useFetchNote = (noteId: string | null) => {
 //       return data;
 //     },
 //     { staleTime: 5 * 60 * 1000 }
-//   );
-// };
-
-// // Create new note
-// export const useCreateNote = () => {
-//   const queryClient = useQueryClient();
-//   return useMutation(
-//     async (newNote) => {
-//       const { data } = await axios.post(`${API_BASE_URL}/notes`, newNote);
-//       return data;
-//     },
-//     {
-//       onSuccess: () => queryClient.invalidateQueries("notes"),
-//     }
 //   );
 // };
 

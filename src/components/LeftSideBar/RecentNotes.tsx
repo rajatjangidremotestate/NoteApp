@@ -9,6 +9,7 @@ export default function RecentNotes() {
   const { noteId } = useParams();
 
   const recentNotes = data?.recentNotes || [];
+  // console.log(recentNotes);
 
   //Testing Loading and all
   if (isLoading) return <p>Loading recent notes...</p>;
@@ -22,23 +23,26 @@ export default function RecentNotes() {
 
       {/* All Recent Notes */}
       <ul className="flex flex-col gap-1">
-        {recentNotes.slice(0, 3).map((note) => (
-          <li key={note.id}>
-            <NavLink
-              to={`/folder/${note.folder.id}/note/${note.id}`}
-              className="flex gap-2 px-4 py-1 hover:bg-gray-800"
-            >
-              <img src={recentNoteIcon} alt="" className="h-4" />
-              <p
-                className={`text-white font-custom text-sm ${
-                  note.id === noteId ? "opacity-full" : "opacity-60"
-                }`}
+        {recentNotes.length > 0 &&
+          recentNotes.slice(0, 3).map((note) => (
+            <li key={note.id}>
+              <NavLink
+                to={`/folder/${note.folderId}/note/${note.id}`}
+                className="flex gap-2 px-4 py-1 hover:bg-gray-800"
               >
-                {note.title}
-              </p>
-            </NavLink>
-          </li>
-        ))}
+                <img src={recentNoteIcon} alt="" className="h-4" />
+                <p
+                  className={`text-white font-custom text-sm ${
+                    noteId != undefined && note.id === noteId
+                      ? "opacity-full"
+                      : "opacity-60"
+                  }`}
+                >
+                  {note.title}
+                </p>
+              </NavLink>
+            </li>
+          ))}
       </ul>
     </div>
   );

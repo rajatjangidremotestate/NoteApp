@@ -5,9 +5,11 @@ import { useRef, useState } from "react";
 import More from "./More.tsx";
 import Folders from "./Folders.tsx";
 import RecentNotes from "./RecentNotes.tsx";
+import { Link, useParams } from "react-router-dom";
 export default function LeftSideBar() {
   // For Seach button and showing the search bar and ad notes
   const searchIconRef = useRef(null);
+  const { folderId } = useParams();
   const [isSearchVisible, setIsSearchVisible] = useState(false);
 
   // ToggleSearch Bar Function
@@ -73,10 +75,13 @@ export default function LeftSideBar() {
         {/* add Note Bar  */}
         {!isSearchVisible && (
           <div className="bg-custom_04 w-full h-full rounded-sm hover:cursor-pointer">
-            <div className="flex flex-row items-center justify-center h-full ">
+            <Link
+              to={`/folder/${folderId}/note/newNote`}
+              className="flex flex-row items-center justify-center h-full "
+            >
               <img src={addIcon} alt="" className="h-4" />
               <p className="font-custom font-bold text-white">New Note</p>
-            </div>
+            </Link>
           </div>
         )}
       </div>
