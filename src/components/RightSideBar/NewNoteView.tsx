@@ -12,7 +12,7 @@ export default function AddNewNotePage() {
 
   const navigate = useNavigate();
 
-  const goToHome = () => {
+  const goBack = () => {
     navigate(`/folder/${folderId}`); // Navigates back to the home route
   };
 
@@ -51,7 +51,7 @@ export default function AddNewNotePage() {
           });
           // console.log("Note created successfully!");
           notify_01();
-          goToHome();
+          goBack();
         },
         onError: (error) => {
           console.error("Error creating note:", error);

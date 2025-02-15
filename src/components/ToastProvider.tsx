@@ -10,7 +10,7 @@ const showToast = (message, type = "success") => {
 };
 
 const ToastProvider = () => {
-  return <ToastContainer position="top-right" autoClose={3000} />;
+  return <ToastContainer position="top-center" autoClose={2000} />;
 };
 
 export { ToastProvider, showToast };

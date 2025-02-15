@@ -1,55 +1,75 @@
 @import "tailwindcss";
 
-.custom-title {
-  font-family: "Kaushan Script", serif;
-  font-style: normal;
-  font-size: 24px;
+@layer utilities {
+  .custom-title {
+    font-family: "Kaushan Script", serif;
+    font-style: normal;
+    font-size: 24px;
+  }
+
+  .font-custom {
+    font-family: "Source Sans 3", serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+  }
+  /* background for left and right side bars */
+  .bg-custom_01 {
+    background-color: #181818;
+  }
+
+  /* background for center bar  */
+  .bg-custom_02 {
+    background-color: #1c1c1c;
+  }
+
+  /* background for selected folder, all notes  */
+
+  .bg-custom_03 {
+    background-color: #ffffff08;
+    /* background-color: #df7a00; */
+  }
+
+  .active {
+    background-color: #3e3e3e;
+    /* -webkit-text-fill-color: black; */
+  }
+
+  .bg-primary {
+    background-color: #df7a00;
+  }
+
+  /* background for selected note */
+  .bg-custom_04 {
+    background-color: #ffffff1a;
+  }
+
+  /* background for new Note section,rightBar Lines */
+
+  .bg-custom_05 {
+    background-color: #ffffff0d;
+  }
+
+  /* text color one  */
+  .text-custom_01 {
+    color: #ffffff99;
+  }
 }
 
-.font-custom {
-  font-family: "Source Sans 3", serif;
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: normal;
-}
+/* darkMode: 'class', // Enable dark mode using class */
 
-.active {
-  background-color: #0000ff;
-}
+/* 
 
-.bg-primary {
-  background-color: #df7a00;
-}
-
-/* background for left and right side bars */
-.bg-custom_01 {
-  background-color: #181818;
-}
-
-/* background for center bar  */
-.bg-custom_02 {
-  background-color: #1c1c1c;
-}
-
-/* background for selected folder, all notes  */
-
-.bg-custom_03 {
-  background-color: #ffffff08;
-  /* background-color: #df7a00; */
-}
-
-/* background for selected note */
-.bg-custom_04 {
-  background-color: #ffffff1a;
-}
-
-/* background for new Note section,rightBar Lines */
-
-.bg-custom_05 {
-  background-color: #ffffff0d;
-}
-
-/* text color one  */
-.text-custom_01 {
-  color: #ffffff99;
-}
+ @theme: {
+    extend: {
+      colors: {
+        primary: '#df7a00',
+        custom_01: '#181818',
+        custom_02: '#1c1c1c',
+        custom_03: '#ffffff08',
+        custom_04: '#ffffff1a',
+        custom_05: '#ffffff0d',
+        text_custom_01: '#ffffff99',
+      }
+    }
+  } */

@@ -191,40 +191,32 @@ export const useUpdateNote = () => {
   });
 };
 
-// // Fetch all notes
-// export const useFetchNotes = () => {
-//   return useQuery(
-//     "notes",
-//     async () => {
-//       const { data } = await axios.get(`${API_BASE_URL}/notes`);
-//       return data;
-//     },
-//     { staleTime: 5 * 60 * 1000 }
-//   );
-// };
+//Delete Note by Id
+export const useDeleteNote = () => {
+  const queryClient = useQueryClient();
 
-// // Delete note
-// export const useDeleteNote = () => {
-//   const queryClient = useQueryClient();
-//   return useMutation(
-//     async (noteId) => {
-//       await axios.delete(`${API_BASE_URL}/notes/${noteId}`);
-//     },
-//     {
-//       onSuccess: () => queryClient.invalidateQueries("notes"),
-//     }
-//   );
-// };
+  return useMutation({
+    mutationFn: async (noteId) => {
+      await AxiosApi.delete(`/notes/${noteId}`);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      queryClient.invalidateQueries(["note", variables.noteId]);
+    },
+  });
+};
 
-// // Restore deleted note
-// export const useRestoreNote = () => {
-//   const queryClient = useQueryClient();
-//   return useMutation(
-//     async (noteId) => {
-//       await axios.post(`${API_BASE_URL}/notes/${noteId}/restore`);
-//     },
-//     {
-//       onSuccess: () => queryClient.invalidateQueries("notes"),
-//     }
-//   );
-// };
+//Restore Note
+export const useRestoreNote = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (noteId) => {
+      await AxiosApi.post(`/notes/${noteId}/restore`);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      queryClient.invalidateQueries(["note", variables.noteId]);
+    },
+  });
+};

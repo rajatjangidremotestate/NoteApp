@@ -6,7 +6,7 @@ import More from "./More.tsx";
 import Folders from "./Folders.tsx";
 import RecentNotes from "./RecentNotes.tsx";
 import { Link, useParams } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { showToast } from "../ToastProvider.tsx";
 export default function LeftSideBar() {
   // For Seach button and showing the search bar and ad notes
   const searchIconRef = useRef(null);
@@ -19,7 +19,9 @@ export default function LeftSideBar() {
   const [folderId, setFolderId] = useState<string | undefined>(routeFolderId); // State to store folderId
   const [route, setRoute] = useState(`/folder/${folderId}/note/newNote`);
 
-  const notify_03 = () => toast.warning("Select one folder !");
+  const notify_03 = () => {
+    showToast("Select one folder !", "warning");
+  };
 
   useEffect(() => {
     if (routeFolderId) {
@@ -42,9 +44,9 @@ export default function LeftSideBar() {
           folderId === "trashNotes") &&
         isClicked === true
       ) {
-        alert("Select one folder from folders");
+        // alert("Select one folder from folders");
         setIsClicked(false);
-        // notify_03();
+        notify_03();
       }
       setIsFolderSelected(false);
     } else {
@@ -64,6 +66,10 @@ export default function LeftSideBar() {
     }, 100);
   };
 
+  function toggleDarkMode() {
+    document.documentElement.classList.toggle("dark");
+  }
+
   // Toggle the search and add note bar according to search icon
   return (
     <div className="bg-custom_01 h-full w-1/5 py-5 flex flex-col gap-4">
@@ -78,7 +84,13 @@ export default function LeftSideBar() {
         </div>
 
         {/* Search Icon used searchIconRef for handling search bar focus */}
-        <div className="hover:cursor-pointer">
+        <div className="flex  gap-1 hover:cursor-pointer">
+          {/* <p
+            className="rounded-full bg-white h-5 w-5 text-center font-custom"
+            onClick={() => toggleDarkMode()}
+          >
+            T
+          </p> */}
           <button
             className={`opacity-40 h-4 hover:cursor-pointer transition-transform duration-500 ease-in-out ${
               isSearchVisible ? "rotate-45" : "rotate-0"

@@ -1,18 +1,22 @@
 import NoteView from "./NoteView";
-import NewNoteView from "./NewNoteView";
-import { useParams } from "react-router-dom";
-// import { selectNoteView } from "./selectNoteView";
+import { useNavigate, useParams } from "react-router-dom";
+import RestoreNoteView from "./RestoreNoteView";
 
 export default function RightSideBar() {
-  const { noteId } = useParams<{ noteId?: string }>();
+  const { folderId } = useParams<{ folderId?: string }>();
   // console.log(noteId);
-  const isNewNote = noteId === "newNote" ? true : false; // Check if we are adding a new note
+  const isNewNote = folderId === "trashNotes" ? true : false;
+  const navigate = useNavigate();
 
+  const goRestore = () => {
+    navigate(`/restore`); // Navigates back to the home route
+  };
   if (isNewNote) {
-    return <NewNoteView />;
+    // return <RestoreNoteView />;
+    goRestore();
   }
 
   // if (!noteId) return <selectNoteView />;
 
-  return <NoteView />;
+  // return <NoteView />;
 }

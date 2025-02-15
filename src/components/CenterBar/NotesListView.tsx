@@ -16,7 +16,7 @@ export default function NotesListView() {
   const { noteId } = useParams();
 
   // const folderName = currnNotes.length > 0 ? currnNotes[0].folder.name : "";
-  // console.log(folderName);
+  console.log(folderId);
 
   const folderName =
     folderId === "favoriteNotes"
@@ -75,7 +75,7 @@ export default function NotesListView() {
     );
 
   return (
-    <div className="bg-custom_02 h-full w-1/5 py-5 flex flex-col gap-2">
+    <div className="bg-custom_02 h-full w-1/5 py-5 flex flex-col gap-2 dark:bg-white">
       {/* Header Text  */}
       <p className="font-custom text-lg text-white px-4">{folderName}</p>
 
@@ -86,8 +86,8 @@ export default function NotesListView() {
             <NavLink
               // to={`/folder/${note.folderId}/note/${note.id}`}
               to={`/folder/${folderRoute}/note/${note.id}`}
-              className={` rounded-sm p-3 flex flex-col gap-1.5  ${
-                note.id === noteId ? "active" : "hover:bg-gray-800 bg-custom_03"
+              className={` rounded-sm p-3 flex flex-col gap-1.5 hover:bg-gray-800 ${
+                note.id === noteId ? "active" : "bg-custom_03"
               }`}
             >
               {/* Note Title  */}

@@ -28,6 +28,9 @@ export default function Folders() {
   const notify_02 = () => {
     showToast("Folder Updated !", "success");
   };
+  const notify_03 = () => {
+    showToast("!! Error !!", "error");
+  };
 
   // For Editing Folder Name
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -98,6 +101,7 @@ export default function Folders() {
           setIsUpdating(false); // Stop loading when successful
         },
         onError: () => {
+          notify_03();
           setIsUpdating(false); // Stop loading if there's an error
         },
       }
