@@ -1,8 +1,7 @@
 import { NavLink, useParams } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
-
-import { ToastContainer, toast } from "react-toastify";
+import { showToast } from "../ToastProvider";
 
 import {
   useFetchFolders,
@@ -23,8 +22,12 @@ export default function Folders() {
   const folders = data?.folders || [];
   // console.log(folders);
 
-  const notify_01 = () => toast.success("New Folder Added !");
-  const notify_02 = () => toast.success("Folder Updated !");
+  const notify_01 = () => {
+    showToast("New Folder Added !", "success");
+  };
+  const notify_02 = () => {
+    showToast("Folder Updated !", "success");
+  };
 
   // For Editing Folder Name
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -109,7 +112,6 @@ export default function Folders() {
 
   return (
     <div className="flex flex-col gap-1 border border-gray-800">
-      <ToastContainer />
       {/* Folder Heading and add new Folder icon  */}
       <div className="flex justify-between px-4 items-center border-b border-b-white border-dotted">
         <div className="flex items-center gap-1.5">

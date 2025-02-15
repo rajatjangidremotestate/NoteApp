@@ -1,11 +1,11 @@
 import { useParams } from "react-router-dom";
-import { useFetchFolderNotes } from "../api/apiAxios";
+import { useFetchFolderNotes } from "../../api/apiAxios";
 import { NavLink } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import { useEffect, useState } from "react";
 
-export default function CenterBar() {
+export default function NotesListView() {
   const { folderId } = useParams<{ folderId: string }>();
   const [folderRoute, setFolderRoute] = useState("");
   // console.log(folderId);
@@ -27,7 +27,7 @@ export default function CenterBar() {
       ? "Trash Notes"
       : currnNotes.length > 0
       ? currnNotes[0].folder.name
-      : "";
+      : "Selected Folder is Empty";
 
   useEffect(() => {
     const newFolderName =
@@ -59,7 +59,9 @@ export default function CenterBar() {
               thickness={6}
             />
           </Box>
-          <p className="font-custom text-lg text-white px-2">Loading...</p>
+          <p className="font-custom text-lg text-white px-2">
+            Loading Notes...
+          </p>
         </div>
       </div>
     );
@@ -69,13 +71,6 @@ export default function CenterBar() {
         <p className="font-custom text-lg text-white px-4">
           Error fetching notes
         </p>
-      </div>
-    );
-
-  if (!currnNotes?.length)
-    return (
-      <div className="bg-custom_02 h-full w-1/5 py-5 flex flex-col gap-2">
-        <p className="font-custom text-lg text-white px-4">No Notes</p>
       </div>
     );
 

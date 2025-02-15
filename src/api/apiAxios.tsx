@@ -120,9 +120,9 @@ export const useFetchFolderNotes = ({ folderId }: FetchFolderNotesParams) => {
       folderId !== "archivedNotes"
         ? folderId
         : undefined, // Pass folderId only if it's not a special case
-    archived: folderId === "archivedNotes" ? true : undefined,
+    archived: folderId === "archivedNotes" ? true : false,
     favorite: folderId === "favoriteNotes" ? true : undefined,
-    deleted: folderId === "trashNotes" ? true : undefined,
+    deleted: folderId === "trashNotes" ? true : false,
   };
 
   return useQuery({

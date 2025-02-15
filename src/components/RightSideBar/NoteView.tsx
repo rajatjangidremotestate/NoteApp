@@ -127,15 +127,15 @@ export default function NoteView() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  if (!noteId)
-    return (
-      <div className="bg-custom_01 h-full w-3/5 p-10 flex flex-col gap-3">
-        {/* Title for current Note  */}
-        <div className="flex flex-row justify-between items-center">
-          <p className="font-custom text-3xl text-white">No note selected</p>
-        </div>
-      </div>
-    );
+  // if (!noteId)
+  //   return (
+  //     <div className="bg-custom_01 h-full w-3/5 p-10 flex flex-col gap-3">
+  //       {/* Title for current Note  */}
+  //       <div className="flex flex-row justify-between items-center">
+  //         <p className="font-custom text-3xl text-white">No note selected</p>
+  //       </div>
+  //     </div>
+  //   );
 
   if (isLoading)
     return (
