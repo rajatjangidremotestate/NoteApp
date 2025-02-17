@@ -167,6 +167,7 @@ export const useCreateNote = () => {
   return useMutation({
     mutationFn: async (newNote: NoteData) => {
       const { data } = await AxiosApi.post(`/notes`, newNote);
+      // console.log(data);
       return data;
     },
     onSuccess: () => {
@@ -175,7 +176,7 @@ export const useCreateNote = () => {
   });
 };
 
-// Update note (favorite/archive/status)
+// Update note for favorite/archive/status
 export const useUpdateNote = () => {
   const queryClient = useQueryClient();
 
@@ -213,6 +214,33 @@ export const useRestoreNote = () => {
   return useMutation({
     mutationFn: async (noteId) => {
       await AxiosApi.post(`/notes/${noteId}/restore`);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      queryClient.invalidateQueries(["note", variables.noteId]);
+    },
+  });
+};
+
+// Define the Note type
+interface updateNoteData {
+  id: string | undefined;
+  folderId: string | undefined;
+  title: string;
+  content: string;
+}
+
+// Hook for saving a note with debounce
+export const useSaveNote = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, folderId, title, content }: updateNoteData) => {
+      const { data } = await AxiosApi.patch(`/notes/${id}`, {
+        folderId,
+        title,
+        content,
+      });
+      return data;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });

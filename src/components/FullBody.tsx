@@ -1,6 +1,6 @@
 import LeftSideBar from "./LeftSideBar/LeftSideBar";
 import NoteView from "./RightSideBar/NoteView";
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import SelectNoteView from "./RightSideBar/SelectNoteView";
 import NotesListView from "./CenterBar/NotesListView";
 import SelectFolderView from "./CenterBar/SelectFolderView";
@@ -58,7 +58,7 @@ export default function FullBody() {
             </>
           }
         />
-        {/* <Route path="/" element={<Navigate to="/" />} /> */}
+        {/* <Route path="/" element={<Navigate to="/folder/newFolder" />} /> */}
       </Routes>
     </div>
   );

@@ -16,7 +16,7 @@ export default function NotesListView({ title, setTitle }) {
   const { noteId } = useParams();
 
   // const folderName = currnNotes.length > 0 ? currnNotes[0].folder.name : "";
-  console.log(folderId);
+  // console.log(folderId);
 
   const folderName =
     folderId === "favoriteNotes"
@@ -79,7 +79,7 @@ export default function NotesListView({ title, setTitle }) {
     );
 
   return (
-    <div className="bg-custom_02 h-full w-1/5 py-5 flex flex-col gap-2 dark:bg-white">
+    <div className="bg-custom_02 h-full w-1/5 py-5 flex flex-col gap-2 ">
       {/* Header Text  */}
       <p className="font-custom text-lg text-white px-4">{folderName}</p>
 

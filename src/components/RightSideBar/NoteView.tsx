@@ -9,15 +9,24 @@ import {
   useDeleteNote,
   useFetchFolders,
   useFetchNote,
+  useSaveNote,
   useUpdateNote,
 } from "../../api/apiAxios";
 import { useEffect, useRef, useState } from "react";
 import { showToast } from "../ToastProvider";
 import RestoreNoteView from "./RestoreNoteView";
+import debounceFunction from "../../api/debounceFunction";
 
-export default function NoteView({ title, setTitle }) {
+export default function NoteView({
+  title,
+  setTitle,
+}: {
+  title: string;
+  setTitle: (pre: string) => string;
+}) {
   const { folderId, noteId } = useParams();
-  console.log(folderId);
+  const [content, setContent] = useState("Content Default");
+  // console.log(folderId);
   const { data: note, isLoading, error } = useFetchNote(noteId || "");
   const updateNote = useUpdateNote();
   const [isOpen, setIsOpen] = useState(false);
@@ -87,6 +96,7 @@ export default function NoteView({ title, setTitle }) {
   };
 
   const Note = note?.note || {};
+  if (Note.length > 0) setContent(note.content);
   const Folders = folders?.folders || [];
   const arr =
     Note.id != undefined
@@ -100,8 +110,50 @@ export default function NoteView({ title, setTitle }) {
       : [];
   const folderName = arr.length > 0 ? arr[0].name : "";
 
+  //For Saving notes
+  const { mutate: saveNote } = useSaveNote();
+
+  // Debounced save function
+  const debouncedSaveNote = debounceFunction(
+    (updatedTitle: string, updatedContent: string) => {
+      saveNote(
+        {
+          id: noteId,
+          folderId,
+          title: updatedTitle,
+          content: updatedContent,
+        },
+        {
+          onSuccess: () => {
+            console.log("Changed Note");
+            const noteSavedElement = document.getElementById("noteSaved");
+            if (noteSavedElement) {
+              // Show the element first, then hide it after 1 second
+              noteSavedElement.style.display = "block"; // or "flex" if using Flexbox
+              setTimeout(() => {
+                noteSavedElement.style.display = "none";
+              }, 1000);
+            }
+          },
+        }
+      );
+    },
+    1000
+  ); // 1-second debounce
+
+  // Handle changes and trigger the debounced save
+  const handleTitleChange = (e) => {
+    setTitle(e.target.value);
+    debouncedSaveNote(e.target.value, content);
+  };
+
+  const handleContentChange = (e) => {
+    setContent(e.target.value);
+    debouncedSaveNote(title, e.target.value);
+  };
+
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = (event: { target: unknown }) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setIsOpen(false);
       }
@@ -132,15 +184,16 @@ export default function NoteView({ title, setTitle }) {
         <p className="text-white font-custom text-5xl">Loading...</p>
       </div>
     );
+  // if (isLoading === false) setContent(note.content);
   if (error) return <p>Error fetching note: {error.message}</p>;
   return (
     <div className="bg-custom_01 h-full w-3/5 p-10 flex flex-col gap-3">
       <div className="flex flex-row justify-between items-center">
         {/* <p className="font-custom text-3xl text-white">{note?.note?.title}</p> */}
         <input
-          className="font-custom text-3xl text-white"
+          className="font-custom text-3xl text-white w-full outline-none"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={handleTitleChange}
         ></input>
         <div className="relative inline-block">
           <img
@@ -203,9 +256,20 @@ export default function NoteView({ title, setTitle }) {
       </div>
 
       {/* Content for the Note  */}
-      <p id="textArea" className="text-white font-custom text-sm ">
-        {Note.content != undefined && Note.content}
-      </p>
+      <textarea
+        id="textArea"
+        value={content}
+        onChange={handleContentChange}
+        rows={10}
+        className="text-white font-custom text-sm border-none outline-none"
+      ></textarea>
+
+      <div
+        id="noteSaved"
+        className="absolute bottom-5 right-10 text-xl bg-white text-green-700 font-custom shadow-lg  rounded py-1 px-3 font-bold hidden transition-opacity duration-500 ease-in-out"
+      >
+        Note Saved Successfully
+      </div>
     </div>
   );
 }

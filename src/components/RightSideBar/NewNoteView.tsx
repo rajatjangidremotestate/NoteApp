@@ -16,17 +16,17 @@ export default function AddNewNotePage() {
     navigate(`/folder/${folderId}`); // Navigates back to the home route
   };
 
-  const createNoteMutation = useCreateNote();
+  const createNote = useCreateNote();
 
-  // ✅ Get the current date in YYYY-MM-DD format
+  // Get the current date in YYYY-MM-DD format
   const currentDate = new Date().toISOString().split("T")[0];
 
-  // ✅ Find folder name based on folderId
+  // Find folder name based on folderId
   const folderName =
     folders?.folders?.find((folder) => folder.id === folderId)?.name ||
     "Unknown Folder";
 
-  // ✅ State for title and content
+  // State for title and content
   const [title, setTitle] = useState("Defalut Title");
   const [content, setContent] = useState("Defalut Content");
 
@@ -42,7 +42,7 @@ export default function AddNewNotePage() {
       return;
     }
 
-    createNoteMutation.mutate(
+    createNote.mutate(
       { folderId, title, content },
       {
         onSuccess: (_, variables) => {

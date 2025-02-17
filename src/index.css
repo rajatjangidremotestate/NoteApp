@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme {
+  --color-custom_01: oklch(20.9% 0 0);
+  --color-custom_02: oklch(22.64% 0 0);
+}
+
 @layer utilities {
   .custom-title {
     font-family: "Kaushan Script", serif;
@@ -13,18 +18,6 @@
     font-weight: 400;
     font-style: normal;
   }
-
-  /* background for left and right side bars */
-  .bg-custom_01 {
-    background-color: #181818;
-  }
-
-  /* background for center bar  */
-  .bg-custom_02 {
-    background-color: #1c1c1c;
-  }
-
-  /* background for selected folder, all notes  */
 
   .bg-custom_03 {
     background-color: #ffffff08;
@@ -58,19 +51,3 @@
 }
 
 /* darkMode: 'class', // Enable dark mode using class */
-
-/* 
-
- @theme: {
-    extend: {
-      colors: {
-        primary: '#df7a00',
-        custom_01: '#181818',
-        custom_02: '#1c1c1c',
-        custom_03: '#ffffff08',
-        custom_04: '#ffffff1a',
-        custom_05: '#ffffff0d',
-        text_custom_01: '#ffffff99',
-      }
-    }
-  } */
