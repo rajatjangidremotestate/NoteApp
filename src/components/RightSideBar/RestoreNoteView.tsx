@@ -19,9 +19,8 @@ export default function RestoreNoteView() {
 
   const goBack = () => {
     if (folderId !== "trashNotes")
-      navigate(
-        `/folder/${folderId}/note/${noteId}`
-      ); // Navigates back to the home route
+      navigate(`/folder/${folderId}/note/${noteId}`);
+    // Navigates back to the home route
     else navigate(`/folder/${folderId}`);
   };
 

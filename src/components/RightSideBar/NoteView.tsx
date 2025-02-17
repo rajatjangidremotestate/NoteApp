@@ -15,7 +15,7 @@ import { useEffect, useRef, useState } from "react";
 import { showToast } from "../ToastProvider";
 import RestoreNoteView from "./RestoreNoteView";
 
-export default function NoteView() {
+export default function NoteView({ title, setTitle }) {
   const { folderId, noteId } = useParams();
   console.log(folderId);
   const { data: note, isLoading, error } = useFetchNote(noteId || "");
@@ -136,7 +136,12 @@ export default function NoteView() {
   return (
     <div className="bg-custom_01 h-full w-3/5 p-10 flex flex-col gap-3">
       <div className="flex flex-row justify-between items-center">
-        <p className="font-custom text-3xl text-white">{note?.note?.title}</p>
+        {/* <p className="font-custom text-3xl text-white">{note?.note?.title}</p> */}
+        <input
+          className="font-custom text-3xl text-white"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        ></input>
         <div className="relative inline-block">
           <img
             src={threeDotIcon}

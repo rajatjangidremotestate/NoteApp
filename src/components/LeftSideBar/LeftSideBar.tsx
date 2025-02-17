@@ -7,12 +7,18 @@ import Folders from "./Folders.tsx";
 import RecentNotes from "./RecentNotes.tsx";
 import { Link, useParams } from "react-router-dom";
 import { showToast } from "../ToastProvider.tsx";
-export default function LeftSideBar() {
+export default function LeftSideBar({
+  title,
+  setTitle,
+}: {
+  title: string;
+  setTitle: () => string;
+}) {
   // For Seach button and showing the search bar and ad notes
   const searchIconRef = useRef(null);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
 
-  const [isFolderSelected, setIsFolderSelected] = useState(true);
+  const [isFolderSelected, setIsFolderSelected] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
 
   const { folderId: routeFolderId } = useParams<{ folderId: string }>(); // Get folderId from URL
@@ -23,12 +29,17 @@ export default function LeftSideBar() {
     showToast("Select one folder !", "warning");
   };
 
-  useEffect(() => {
-    if (routeFolderId) {
-      setFolderId(routeFolderId); // Update folderId state when route changes
-      setRoute(`/folder/${folderId}/note/newNote`);
-    }
-  }, [routeFolderId, folderId]); // Runs every time routeFolderId changes
+  // useEffect(() => {
+  //   if (routeFolderId) {
+  //     setFolderId(routeFolderId); // Update folderId state when route changes
+  //     setRoute(`/folder/${folderId}/note/newNote`);
+  //     setIsClicked(false);
+  //   }
+  // }, [routeFolderId, folderId]); // Runs every time routeFolderId changes
+
+  function addnewNoteFuntion() {
+    console.log("Hello World");
+  }
 
   useEffect(() => {
     if (
@@ -37,20 +48,25 @@ export default function LeftSideBar() {
       folderId === "archivedNotes" ||
       folderId === "trashNotes"
     ) {
-      if (
-        (folderId === undefined ||
-          folderId === "favoriteNotes" ||
-          folderId === "archivedNotes" ||
-          folderId === "trashNotes") &&
-        isClicked === true
-      ) {
-        // alert("Select one folder from folders");
-        setIsClicked(false);
-        notify_03();
-      }
+      setIsClicked(false);
       setIsFolderSelected(false);
     } else {
       setIsFolderSelected(true);
+    }
+  }, [folderId]);
+
+  useEffect(() => {
+    console.log(isClicked);
+    if (
+      (folderId === undefined ||
+        folderId === "favoriteNotes" ||
+        folderId === "archivedNotes" ||
+        folderId === "trashNotes") &&
+      isClicked === true
+    ) {
+      // alert("Select one folder from folders");
+      setIsClicked(false);
+      notify_03();
     }
   }, [isClicked, folderId]);
 
@@ -66,15 +82,15 @@ export default function LeftSideBar() {
     }, 100);
   };
 
-  function toggleDarkMode() {
-    document.documentElement.classList.toggle("dark");
-  }
+  // function toggleDarkMode() {
+  //   document.documentElement.classList.toggle("dark");
+  // }
 
   // Toggle the search and add note bar according to search icon
   return (
-    <div className="bg-custom_01 h-full w-1/5 py-5 flex flex-col gap-4">
+    <div className="bg-custom_01 h-full w-1/5 py-5 flex flex-col gap-2 border-r-2 border-black">
       {/* logo and search icon dev */}
-      <div className="flex flex-row justify-between h-10 items-center px-5">
+      <div className="flex flex-row justify-between h-1/15 items-center px-5">
         {/* <ToastContainer /> */}
 
         {/* Title and pancile icon  */}
@@ -106,7 +122,7 @@ export default function LeftSideBar() {
       </div>
 
       {/* search bar or add note bar */}
-      <div className="w-full h-8 px-5">
+      <div className="w-full h-1/15 px-5">
         {/* Search Bar  */}
         {isSearchVisible && (
           <div className="bg-custom_04 w-full h-full rounded-sm">
@@ -130,9 +146,12 @@ export default function LeftSideBar() {
         {!isSearchVisible && (
           <div className="bg-custom_04 w-full h-full rounded-sm hover:cursor-pointer">
             <Link
-              to={isFolderSelected ? route : ""}
+              to={""}
               className="flex flex-row items-center justify-center h-full "
-              onClick={() => setIsClicked(true)}
+              onClick={() => {
+                setIsClicked(true);
+                addnewNoteFuntion();
+              }}
             >
               <img src={addIcon} alt="" className="h-4" />
               <p className="font-custom font-bold text-white">New Note</p>
@@ -141,7 +160,7 @@ export default function LeftSideBar() {
         )}
       </div>
       {/* recents notes div */}
-      <RecentNotes />
+      <RecentNotes title={title} setTitle={setTitle} />
       {/* All Folders Div */}
       <Folders />
       {/* More 1. Favorites 2. Trash 3. Archived Notes  */}

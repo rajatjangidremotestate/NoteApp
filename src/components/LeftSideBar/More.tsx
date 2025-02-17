@@ -4,7 +4,7 @@ import { favoritesIcon, trashIcon, archivedIcon } from "./ImportsAll";
 export default function More() {
   const { folderId } = useParams();
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1 h-3/15">
       {/* More Heading  */}
       <div className="flex justify-between px-4">
         <p className="font-custom text-white opacity-60">More</p>

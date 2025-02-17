@@ -115,9 +115,9 @@ export default function Folders() {
   if (isError) return <p>Failed to load Folder.</p>;
 
   return (
-    <div className="flex flex-col gap-1 border border-gray-800">
+    <div className="flex flex-col flex-1 min-h-6/15 bg-custom_02">
       {/* Folder Heading and add new Folder icon  */}
-      <div className="flex justify-between px-4 items-center border-b border-b-white border-dotted">
+      <div className="flex justify-between px-4 h-1/10 items-center border-b-2 border-b-black">
         <div className="flex items-center gap-1.5">
           {(LodingFolders || isAdding) && (
             <Box
@@ -148,8 +148,8 @@ export default function Folders() {
       </div>
 
       {/* All Folders  */}
-      <nav>
-        <ul className="max-h-38 overflow-y-auto">
+      <nav className="flex h-9/10 overflow-clip w-full">
+        <ul className="overflow-y-scroll w-full">
           {folders.map((folder) => (
             <li key={folder.id}>
               {/* <NavLink

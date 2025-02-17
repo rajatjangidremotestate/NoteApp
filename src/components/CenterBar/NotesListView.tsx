@@ -5,7 +5,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import { useEffect, useState } from "react";
 
-export default function NotesListView() {
+export default function NotesListView({ title, setTitle }) {
   const { folderId } = useParams<{ folderId: string }>();
   const [folderRoute, setFolderRoute] = useState("");
   // console.log(folderId);
@@ -40,6 +40,10 @@ export default function NotesListView() {
         : folderId;
     setFolderRoute(newFolderName);
   }, [folderId]);
+
+  function handleChangeTitle(title: string) {
+    setTitle(title);
+  }
 
   if (isLoading)
     return (
@@ -86,20 +90,26 @@ export default function NotesListView() {
             <NavLink
               // to={`/folder/${note.folderId}/note/${note.id}`}
               to={`/folder/${folderRoute}/note/${note.id}`}
+              onClick={() => handleChangeTitle(note ? note.title : "")}
               className={` rounded-sm p-3 flex flex-col gap-1.5 hover:bg-gray-800 ${
                 note.id === noteId ? "active" : "bg-custom_03"
               }`}
             >
-              {/* Note Title  */}
-              <p className="text-white font-custom ">{note.title}</p>
-              {/* Date and Contain...  */}
-              <div className="flex h-5 justify-between">
-                <p className="font-custom text-sm text-white opacity-40">
-                  {note.createdAt.substring(0, 10)}
+              <div>
+                {/* Note Title  */}
+                {/* <p className="text-white font-custom ">{note.title}</p> */}
+                <p className="text-white font-custom style-none ">
+                  {note.id === noteId ? title : note.title}
                 </p>
-                <p className="font-custom text-sm text-white opacity-60">
-                  {note.preview.substring(0, 15).concat("...")}
-                </p>
+                {/* Date and Contain...  */}
+                <div className="flex h-5 justify-between">
+                  <p className="font-custom text-sm text-white opacity-40">
+                    {note.createdAt.substring(0, 10)}
+                  </p>
+                  <p className="font-custom text-sm text-white opacity-60">
+                    {note.preview.substring(0, 15).concat("...")}
+                  </p>
+                </div>
               </div>
             </NavLink>
           </li>

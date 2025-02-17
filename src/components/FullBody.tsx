@@ -6,9 +6,11 @@ import NotesListView from "./CenterBar/NotesListView";
 import SelectFolderView from "./CenterBar/SelectFolderView";
 import AddNewNotePage from "./RightSideBar/NewNoteView";
 import RestoreNoteView from "./RightSideBar/RestoreNoteView";
+import { useState } from "react";
 
 export default function FullBody() {
-  const url = useLocation();
+  // const url = useLocation();
+  const [title, setTitle] = useState("Change Title");
   return (
     <div className="flex h-screen w-screen bg-white">
       <Routes>
@@ -18,8 +20,8 @@ export default function FullBody() {
           path="/folder/:folderId"
           element={
             <>
-              <LeftSideBar />
-              <NotesListView />
+              <LeftSideBar title={title} setTitle={setTitle} />
+              <NotesListView title={title} setTitle={setTitle} />
               <SelectNoteView />
             </>
           }
@@ -28,66 +30,29 @@ export default function FullBody() {
           path="/folder/:folderId/note/:noteId"
           element={
             <>
-              <LeftSideBar />
-              <NotesListView />
-              <NoteView />
+              <LeftSideBar title={title} setTitle={setTitle} />
+              <NotesListView title={title} setTitle={setTitle} />
+              <NoteView title={title} setTitle={setTitle} />
             </>
           }
         />
-        <Route
-          path="/folder/:folderId/note/newNote"
-          element={
-            <>
-              <LeftSideBar />
-              <NotesListView />
-              <AddNewNotePage />
-            </>
-          }
-        />
-
-        {/* <Route
-          path="/folder/:favoriteNotes"
-          element={
-            <>
-              <LeftSideBar />
-              <NotesListView />
-              <SelectNoteView />
-            </>
-          }
-        /> */}
-
-        {/* <Route
-          path="/folder/:favoriteNotes/note/:noteId"
-          element={
-            <>
-              <LeftSideBar />
-              <NotesListView />
-              <NoteView />
-            </>
-          }
-        /> */}
 
         <Route
           path="/folder/:folderId/note/:noteId/restore"
           element={
             <>
-              <LeftSideBar />
+              <LeftSideBar title={title} setTitle={setTitle} />
               <NotesListView />
               <RestoreNoteView />
             </>
           }
         />
 
-        {/* <Route
-          path="/folder/trashNotes/note/:noteId"
-          element={<Navigate to={`${url.pathname}/restore`} />}
-        /> */}
-
         <Route
           path="/*"
           element={
             <>
-              <LeftSideBar />
+              <LeftSideBar title={title} setTitle={setTitle} />
               <SelectFolderView />
               <SelectNoteView />
             </>
