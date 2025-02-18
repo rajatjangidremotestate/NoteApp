@@ -50,8 +50,8 @@ export default function RecentNotes({
             <li key={note.id}>
               <NavLink
                 to={`/folder/${note.folderId}/note/${note.id}`}
-                onClick={() => setTitle(note.title)}
-                className="flex gap-2 px-4 py-1 hover:bg-gray-800"
+                // onClick={() => setTitle(note.title)}
+                className="flex gap-2 px-4 py-1 hover:bg-gray-800 w-full h-fit"
               >
                 <img src={recentNoteIcon} alt="" className="h-4" />
                 <p
@@ -61,7 +61,13 @@ export default function RecentNotes({
                       : "opacity-60"
                   }`}
                 >
-                  {note.id === noteId ? title : note.title}
+                  {note.id === noteId
+                    ? title?.length > 20
+                      ? title.slice(0, 20)
+                      : title
+                    : note?.title.length > 20
+                    ? note.title.slice(0, 20).concat("...")
+                    : note.title}
                 </p>
               </NavLink>
             </li>

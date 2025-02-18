@@ -2,9 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { showToast } from "../ToastProvider";
 import { Link, useParams, Navigate, useNavigate } from "react-router-dom";
 import { addIcon, pancileIcon, searchIcon } from "./ImportsAll";
-import { useCreateNote } from "../../api/apiAxios";
+import { useCreateNote, useSearchNotes } from "../../api/apiAxios";
 import { useQueryClient } from "@tanstack/react-query";
 import { Box, CircularProgress } from "@mui/material";
+import debounceFunction from "../../api/debounceFunction";
+import { NavLink } from "react-router-dom";
 
 export default function TitleAndSearchBar({ setTitle }) {
   // For Seach button and showing the search bar and ad notes
@@ -17,6 +19,9 @@ export default function TitleAndSearchBar({ setTitle }) {
   const { folderId: routeFolderId } = useParams<{ folderId: string }>();
   const [folderId, setFolderId] = useState<string | undefined>(routeFolderId); // State to storing folderId
   //   const [routeNoteId, setRouteNoteId] = useState("");
+
+  const [searchText, setSearchText] = useState("");
+  const [filteredNotes, setFilteredNotes] = useState([]);
 
   const navigate = useNavigate();
 
@@ -41,6 +46,7 @@ export default function TitleAndSearchBar({ setTitle }) {
     navigate(`/folder/${routeFolderId}/note/${data.id}`);
   }
 
+  //Add new NOTE lOGIC
   function addnewNoteFuntion() {
     console.log("Clicked To Add Note");
     console.log("Folder: " + isFolderSelected);
@@ -101,9 +107,37 @@ export default function TitleAndSearchBar({ setTitle }) {
     }
   }, [isClicked, isFolderSelected]);
 
+  //fOR Search Bar apI
+  const { mutate: searchNotes } = useSearchNotes();
+
+  // Debounced save function
+  const debouncedSaveNote = debounceFunction((updatedTitle: string) => {
+    searchNotes(
+      {
+        search: updatedTitle,
+      },
+      {
+        onSuccess: (response) => {
+          // console.log(response);
+          setFilteredNotes(response?.notes);
+        },
+      }
+    );
+  }, 1000); // 1-second debounce
+
+  function handleSearchAll(e) {
+    setSearchText(e.target.value);
+    debouncedSaveNote(e.target.value);
+  }
+
+  function searchNoteClicked() {
+    console.log("Seached OHKK");
+  }
+
   // Toggle the search and add note bar according to search icon
   const toggleSearchBar = () => {
     setIsSearchVisible((prev) => !prev);
+    setSearchText("");
     // Focus on the input field when opening
     setTimeout(() => {
       if (searchIconRef.current) {
@@ -111,6 +145,7 @@ export default function TitleAndSearchBar({ setTitle }) {
       }
     }, 100);
   };
+
   return (
     <>
       <div className="flex flex-row justify-between h-1/15 items-center px-5">
@@ -140,19 +175,38 @@ export default function TitleAndSearchBar({ setTitle }) {
       <div className="w-full h-1/15 px-5">
         {/* Search Bar  */}
         {isSearchVisible && (
-          <div className="bg-custom_04 w-full h-full rounded-sm">
-            <div className="flex flex-row items-center h-full">
-              <img
-                src={searchIcon}
-                alt=""
-                className="absolute left-6 opacity-40 h-4"
-              />
-              <input
-                type="text"
-                ref={searchIconRef}
-                placeholder="Search note"
-                className=" text-white pl-6 w-full font-semibold font-custom h-full"
-              />
+          <div className="bg-custom_04 w-ful rounded-sm">
+            <div className="flex flex-col gap-1">
+              <div className="flex flex-row items-center">
+                <img
+                  src={searchIcon}
+                  alt=""
+                  className="absolute left-6 opacity-40 h-4"
+                />
+                <input
+                  type="text"
+                  ref={searchIconRef}
+                  value={searchText}
+                  onChange={handleSearchAll}
+                  placeholder="Search note"
+                  className=" text-white pl-6 w-full font-semibold font-custom h-full"
+                />
+              </div>
+
+              {searchText && filteredNotes.length > 0 && (
+                <ul className="flex flex-col w-full bg-custom_02 border border-gray-700 rounded-b-md shadow-lg z-50 max-h-50 overflow-y-auto">
+                  {filteredNotes.map((note) => (
+                    <Link
+                      to={`/folder/${note.folderId}/note/${note.id}`}
+                      key={note.id}
+                      onClick={searchNoteClicked}
+                      className="px-4 py-2 hover:bg-gray-800 cursor-pointer text-white"
+                    >
+                      {note.title}
+                    </Link>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         )}

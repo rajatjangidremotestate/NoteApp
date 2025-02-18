@@ -58,7 +58,13 @@ export default function NotesListView({ title, setTitle }) {
     if (notes?.notes) {
       // setCurrentNotes((prev) => [...prev, ...notes.notes]);
       setCurrentNotes((prev) => {
-        const combinedNotes = [...prev, ...notes.notes];
+        if (folderId === "archivedNotes") {
+          return [...notes.notes];
+        }
+        const combinedNotes =
+          notes.PageNo == 1
+            ? [...notes.notes, ...prev]
+            : [...prev, ...notes.notes];
 
         // Use a Map to keep only unique notes by id
         const uniqueNotes = Array.from(
@@ -72,10 +78,6 @@ export default function NotesListView({ title, setTitle }) {
   const handleLoadMore = () => {
     setPageNo((prevPage) => prevPage + 1);
   };
-
-  // function handleChangeTitle(title: string) {
-  //   setTitle(title);
-  // }
 
   if (isLoading && pageNo == 1)
     return (
@@ -95,9 +97,12 @@ export default function NotesListView({ title, setTitle }) {
               thickness={6}
             />
           </Box>
-          <p className="font-custom text-lg text-white px-2">
-            Loading Notes...
-          </p>
+          <p className="font-custom text-lg text-white px-2">Loading Notes </p>
+        </div>
+        <div className="rounded-sm p-3 flex flex-col gap-1.5">
+          {[...Array(Math.round(Math.random() * 10) + 3)].map(() => (
+            <div className="bg-custom_01 h-7"></div>
+          ))}
         </div>
       </div>
     );

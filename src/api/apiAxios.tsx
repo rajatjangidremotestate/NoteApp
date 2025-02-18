@@ -184,8 +184,6 @@ export const useFetchFolderNotes = ({
       });
 
       // Get previous notes from cache
-      const previousData =
-        queryClient.getQueryData(["folder-notes", folderId]) || [];
 
       // // If pageNo === 1, return only the current page notes
       // if (pageNo === 1) {
@@ -194,15 +192,9 @@ export const useFetchFolderNotes = ({
 
       // // If pageNo > 1, append new notes to previous notes
       // return [...previousData, ...data.notes];
-      if (pageNo === 1) {
-        return { notes: data.notes, totalNotes: data.total };
-      }
-
-      // If pageNo > 1, append new notes to previous notes
-      return {
-        notes: [...previousData, ...data.notes],
-        totalNotes: data.total,
-      };
+      // if (pageNo === 1) {
+      // }
+      return { notes: data.notes, totalNotes: data.total, PageNo: pageNo };
     },
     enabled: !!folderId, // Ensure the query only runs if folderId is available
     staleTime: 5 * 60 * 1000, // Cache data for 5 minutes
@@ -229,6 +221,7 @@ interface NoteData {
   content: string;
   isFavorite: boolean;
   isArchived: boolean;
+  Page: number; //For making new Note at Top test
 }
 
 // Hook to create a new note
@@ -241,8 +234,11 @@ export const useCreateNote = () => {
       // console.log(data);
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes", "folder-notes"] }); // Refresh notes list
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] }); // Refresh notes list
+      // queryClient.invalidateQueries({
+      //   queryKey: ["folder-notes", variables.folderId, variables.Page],
+      // });
     },
   });
 };
@@ -301,7 +297,7 @@ interface updateNoteData {
   content: string;
 }
 
-// Hook for saving a note with debounce
+// saving a note with using debounce
 export const useSaveNote = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -316,6 +312,18 @@ export const useSaveNote = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
       queryClient.invalidateQueries(["note", variables.noteId]);
+    },
+  });
+};
+
+// notes according to search Text
+export const useSearchNotes = () => {
+  return useMutation({
+    mutationFn: async ({ search }: updateNoteData) => {
+      const { data } = await AxiosApi.get(`/notes`, {
+        search,
+      });
+      return data;
     },
   });
 };

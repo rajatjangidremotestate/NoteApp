@@ -16,6 +16,7 @@ import { useEffect, useRef, useState } from "react";
 import { showToast } from "../ToastProvider";
 import RestoreNoteView from "./RestoreNoteView";
 import debounceFunction from "../../api/debounceFunction";
+import SelectNoteView from "./SelectNoteView";
 
 export default function NoteView({
   title,
@@ -100,6 +101,8 @@ export default function NoteView({
 
   useEffect(() => {
     const valueContent = Note.content;
+    // console.log("Note Title changed to : " + Note.content);
+    setTitle(Note.title);
     setContent(valueContent);
   }, [Note]);
 
@@ -192,6 +195,7 @@ export default function NoteView({
     );
   // if (isLoading === false) setContent(note.content);
   if (error) return <p>Error fetching note: {error.message}</p>;
+  if (Note?.deletedAt !== null) return <SelectNoteView />;
   return (
     <div className="bg-custom_01 h-full w-3/5 p-10 flex flex-col gap-3">
       <div className="flex flex-row justify-between items-center">
@@ -216,7 +220,9 @@ export default function NoteView({
               <button
                 className="font-custom w-full text-left px-4 py-2 hover:bg-gray-600 hover:cursor-pointer"
                 onClick={() =>
-                  handleUpdateFavorite({ isFavorite: !note?.note?.isFavorite })
+                  handleUpdateFavorite({
+                    isFavorite: !note?.note?.isFavorite,
+                  })
                 }
               >
                 {note?.note?.isFavorite
@@ -226,7 +232,9 @@ export default function NoteView({
               <button
                 className="font-custom w-full text-left px-4 py-2 hover:bg-gray-600 hover:cursor-pointer"
                 onClick={() =>
-                  handleUpdateArchived({ isArchived: !note?.note?.isArchived })
+                  handleUpdateArchived({
+                    isArchived: !note?.note?.isArchived,
+                  })
                 }
               >
                 {note?.note?.isArchived ? "📂 Unarchive" : "📂 Archive"}

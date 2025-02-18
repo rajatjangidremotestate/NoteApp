@@ -1,10 +1,9 @@
 import LeftSideBar from "./LeftSideBar/LeftSideBar";
 import NoteView from "./RightSideBar/NoteView";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import SelectNoteView from "./RightSideBar/SelectNoteView";
 import NotesListView from "./CenterBar/NotesListView";
 import SelectFolderView from "./CenterBar/SelectFolderView";
-import AddNewNotePage from "./RightSideBar/NewNoteView";
 import RestoreNoteView from "./RightSideBar/RestoreNoteView";
 import { useState } from "react";
 
@@ -49,7 +48,7 @@ export default function FullBody() {
         />
 
         <Route
-          path="/*"
+          path="/"
           element={
             <>
               <LeftSideBar title={title} setTitle={setTitle} />
@@ -58,7 +57,7 @@ export default function FullBody() {
             </>
           }
         />
-        {/* <Route path="/" element={<Navigate to="/folder/newFolder" />} /> */}
+        <Route path="/*" element={<Navigate to="/" />} />
       </Routes>
     </div>
   );
