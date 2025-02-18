@@ -109,10 +109,15 @@ export const useUpdateFolder = () => {
 // Fetch notes by folder
 interface FetchFolderNotesParams {
   folderId: string;
+  pageNo: number;
 }
 
-export const useFetchFolderNotes = ({ folderId }: FetchFolderNotesParams) => {
+export const useFetchFolderNotes = ({
+  folderId,
+  pageNo,
+}: FetchFolderNotesParams) => {
   // Determining the query params based on folderId
+  const queryClient = useQueryClient();
   const queryParams = {
     folderId:
       folderId !== "favoriteNotes" &&
@@ -123,15 +128,81 @@ export const useFetchFolderNotes = ({ folderId }: FetchFolderNotesParams) => {
     archived: folderId === "archivedNotes" ? true : false,
     favorite: folderId === "favoriteNotes" ? true : undefined,
     deleted: folderId === "trashNotes" ? true : false,
+    page: pageNo,
   };
 
+  // return useQuery({
+  //   queryKey: ["folder-notes", folderId, pageNo],
+  //   queryFn: async ({ queryKey }) => {
+  //     const [, , currentPage] = queryKey;
+  //     const { data } = await AxiosApi.get(`/notes`, {
+  //       params: queryParams,
+  //     });
+  //     // return data;
+  //     // If pageNo === 1, return data normally
+  //     if (currentPage === 1) {
+  //       return data.notes;
+  //     }
+
+  //     // If pageNo > 1, append new notes to previous notes
+  //     // return (prevData) => ({
+  //     //   ...data,
+  //     //   notes: [...(prevData?.notes || []), ...data.notes],
+  //     // });
+  //     return (prevData) => [...(prevData || []), ...data.notes];
+  //   },
+  //   enabled: !!folderId, // Ensure the query only runs if folderId is available
+  //   staleTime: 5 * 60 * 1000, // Cache data for 5 minutes
+  // });
+
+  //   return useQuery({
+  //     queryKey: ["folder-notes", folderId, pageNo],
+  //     queryFn: async ({ queryKey }) => {
+  //       const [, , currentPage] = queryKey;
+  //       const { data } = await AxiosApi.get(`/notes`, {
+  //         params: queryParams,
+  //       });
+
+  //       // If pageNo === 1, return notes directly
+  //       if (currentPage === 1) {
+  //         return data.notes;
+  //       }
+
+  //       // If pageNo > 1, append new notes to previous notes
+  //       return (prevData) => [...(prevData || []), ...data.notes];
+  //     },
+  //     enabled: !!folderId, // Ensure the query only runs if folderId is available
+  //     staleTime: 5 * 60 * 1000, // Cache data for 5 minutes
+  //   });
+  // };
+
   return useQuery({
-    queryKey: ["folder-notes", folderId],
+    queryKey: ["folder-notes", folderId, pageNo],
     queryFn: async () => {
       const { data } = await AxiosApi.get(`/notes`, {
         params: queryParams,
       });
-      return data;
+
+      // Get previous notes from cache
+      const previousData =
+        queryClient.getQueryData(["folder-notes", folderId]) || [];
+
+      // // If pageNo === 1, return only the current page notes
+      // if (pageNo === 1) {
+      //   return data.notes;
+      // }
+
+      // // If pageNo > 1, append new notes to previous notes
+      // return [...previousData, ...data.notes];
+      if (pageNo === 1) {
+        return { notes: data.notes, totalNotes: data.total };
+      }
+
+      // If pageNo > 1, append new notes to previous notes
+      return {
+        notes: [...previousData, ...data.notes],
+        totalNotes: data.total,
+      };
     },
     enabled: !!folderId, // Ensure the query only runs if folderId is available
     staleTime: 5 * 60 * 1000, // Cache data for 5 minutes

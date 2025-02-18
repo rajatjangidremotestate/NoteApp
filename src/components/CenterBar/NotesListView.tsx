@@ -7,16 +7,26 @@ import { useEffect, useState } from "react";
 
 export default function NotesListView({ title, setTitle }) {
   const { folderId } = useParams<{ folderId: string }>();
+  const [currnNotes, setCurrentNotes] = useState([]);
+  const [pageNo, setPageNo] = useState(1);
   const [folderRoute, setFolderRoute] = useState("");
   // console.log(folderId);
 
-  const { data: notes, isLoading, isError } = useFetchFolderNotes({ folderId });
+  const {
+    data: notes,
+    isLoading,
+    isError,
+  } = useFetchFolderNotes({ folderId, pageNo });
 
-  const currnNotes = notes?.notes || [];
+  // const currnNotes = notes?.notes || [];
+  // setCurrentNotes(notes && notes.notes);
   const { noteId } = useParams();
 
   // const folderName = currnNotes.length > 0 ? currnNotes[0].folder.name : "";
   // console.log(folderId);
+
+  // useEffect(() => {
+  // }, [notes]);
 
   const folderName =
     folderId === "favoriteNotes"
@@ -25,11 +35,13 @@ export default function NotesListView({ title, setTitle }) {
       ? "Archived Notes"
       : folderId === "trashNotes"
       ? "Trash Notes"
-      : currnNotes.length > 0
+      : currnNotes && currnNotes.length > 0
       ? currnNotes[0].folder.name
       : "Selected Folder is Empty";
 
   useEffect(() => {
+    setPageNo(1);
+    setCurrentNotes([]);
     const newFolderName =
       folderId === "favoriteNotes"
         ? "favoriteNotes"
@@ -41,11 +53,31 @@ export default function NotesListView({ title, setTitle }) {
     setFolderRoute(newFolderName);
   }, [folderId]);
 
-  function handleChangeTitle(title: string) {
-    setTitle(title);
-  }
+  useEffect(() => {
+    console.log(notes);
+    if (notes?.notes) {
+      // setCurrentNotes((prev) => [...prev, ...notes.notes]);
+      setCurrentNotes((prev) => {
+        const combinedNotes = [...prev, ...notes.notes];
 
-  if (isLoading)
+        // Use a Map to keep only unique notes by id
+        const uniqueNotes = Array.from(
+          new Map(combinedNotes.map((note) => [note.id, note])).values()
+        );
+
+        return uniqueNotes;
+      });
+    }
+  }, [notes]);
+  const handleLoadMore = () => {
+    setPageNo((prevPage) => prevPage + 1);
+  };
+
+  // function handleChangeTitle(title: string) {
+  //   setTitle(title);
+  // }
+
+  if (isLoading && pageNo == 1)
     return (
       <div className="bg-custom_02 w-1/5">
         <div className="  py-5 px-2 flex flex-row justify-center h-fit items-center">
@@ -84,36 +116,68 @@ export default function NotesListView({ title, setTitle }) {
       <p className="font-custom text-lg text-white px-4">{folderName}</p>
 
       {/* All Current Shown Notes  */}
-      <ul className="flex flex-col gap-1.5 px-4 h-full overflow-y-auto">
-        {currnNotes.map((note) => (
-          <li key={note.id}>
-            <NavLink
-              // to={`/folder/${note.folderId}/note/${note.id}`}
-              to={`/folder/${folderRoute}/note/${note.id}`}
-              onClick={() => handleChangeTitle(note ? note.title : "")}
-              className={` rounded-sm p-3 flex flex-col gap-1.5 hover:bg-gray-800 ${
-                note.id === noteId ? "active" : "bg-custom_03"
-              }`}
-            >
-              <div>
-                {/* Note Title  */}
-                {/* <p className="text-white font-custom ">{note.title}</p> */}
-                <p className="text-white font-custom style-none ">
-                  {note.id === noteId ? title : note.title}
-                </p>
-                {/* Date and Contain...  */}
-                <div className="flex h-5 justify-between">
-                  <p className="font-custom text-sm text-white opacity-40">
-                    {note.createdAt.substring(0, 10)}
+      <ul className="flex flex-col gap-1.5 px-4 py-2 h-full overflow-y-auto">
+        {currnNotes !== undefined &&
+          currnNotes.length > 0 &&
+          currnNotes.map((note) => (
+            <li key={note.id}>
+              <NavLink
+                // to={`/folder/${note.folderId}/note/${note.id}`}
+                to={`/folder/${folderRoute}/note/${note.id}`}
+                // onClick={() => handleChangeTitle(note ? note.title : "")}
+                className={` rounded-sm p-3 flex flex-col gap-1.5 hover:bg-gray-800 ${
+                  note.id === noteId ? "active" : "bg-custom_03"
+                }`}
+              >
+                <div>
+                  {/* Note Title  */}
+                  {/* <p className="text-white font-custom ">{note.title}</p> */}
+                  <p className="text-white font-custom style-none ">
+                    {note.id === noteId ? title : note.title}
                   </p>
-                  <p className="font-custom text-sm text-white opacity-60">
-                    {note.preview.substring(0, 15).concat("...")}
-                  </p>
+                  {/* Date and Contain...  */}
+                  <div className="flex h-5 justify-between">
+                    <p className="font-custom text-sm text-white opacity-40">
+                      {note.createdAt.substring(0, 10)}
+                    </p>
+                    <p className="font-custom text-sm text-white opacity-60">
+                      {note.preview.substring(0, 15).concat("...")}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </NavLink>
-          </li>
-        ))}
+              </NavLink>
+            </li>
+          ))}
+
+        {notes?.totalNotes > currnNotes.length && (
+          <button
+            onClick={handleLoadMore}
+            className="flex justify-center font-custom text-white bg-custom_01 rounded-sm py-1 mt-2 hover:cursor-pointer items-center"
+          >
+            {isLoading ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: " 0px",
+                  width: "10px",
+                }}
+              >
+                <CircularProgress
+                  sx={{ color: "#ffffff" }}
+                  size={10}
+                  thickness={5}
+                />
+              </Box>
+            ) : (
+              ""
+            )}
+            <p className="ml-2">{`${
+              isLoading ? "Loading Notes..." : "Load More Notes"
+            } `}</p>
+          </button>
+        )}
       </ul>
     </div>
   );

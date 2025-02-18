@@ -34,6 +34,7 @@ export default function NoteView({
 
   const { data: folders } = useFetchFolders();
   const deleteNoteMutation = useDeleteNote();
+
   const notify_01 = () => {
     showToast(
       `${
@@ -96,7 +97,12 @@ export default function NoteView({
   };
 
   const Note = note?.note || {};
-  if (Note.length > 0) setContent(note.content);
+
+  useEffect(() => {
+    const valueContent = Note.content;
+    setContent(valueContent);
+  }, [Note]);
+
   const Folders = folders?.folders || [];
   const arr =
     Note.id != undefined
@@ -125,7 +131,7 @@ export default function NoteView({
         },
         {
           onSuccess: () => {
-            console.log("Changed Note");
+            // console.log("Changed Note");
             const noteSavedElement = document.getElementById("noteSaved");
             if (noteSavedElement) {
               // Show the element first, then hide it after 1 second

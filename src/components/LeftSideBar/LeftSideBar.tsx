@@ -14,7 +14,7 @@ export default function LeftSideBar({
   // }
 
   return (
-    <div className="bg-custom_01 h-full w-1/5 py-5 flex flex-col gap-2 border-r-2 border-black">
+    <div className="bg-custom_01 h-full w-1/5 py-5 flex flex-col gap-2 border-r-2 border-black overflow-hidden">
       {/* logo and search icon dev */}
       <TitleAndSearchBar setTitle={setTitle} />
       {/* recents notes div */}
