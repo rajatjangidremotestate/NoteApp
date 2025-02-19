@@ -1,9 +1,11 @@
-import { useState } from "react";
+import FullBody from "./components/FullBody";
+import { ToastProvider } from "./components/ToastProvider";
 
 function App() {
   return (
     <>
-      <h1>Note App</h1>
+      <ToastProvider />
+      <FullBody />
     </>
   );
 }

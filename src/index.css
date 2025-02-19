@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --color-custom_01: oklch(20.9% 0 0);
+  --color-custom_02: oklch(22.64% 0 0);
+}
+
+@layer utilities {
+  .custom-title {
+    font-family: "Kaushan Script", serif;
+    font-style: normal;
+    font-size: 24px;
+  }
+
+  .font-custom {
+    font-family: "Source Sans 3", serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  .bg-custom_03 {
+    background-color: #ffffff08;
+    /* background-color: #df7a00; */
+  }
+
+  .active {
+    background-color: #3e3e3e;
+    /* -webkit-text-fill-color: black; */
+  }
+
+  .bg-primary {
+    background-color: #df7a00;
+  }
+
+  /* background for selected note */
+  .bg-custom_04 {
+    background-color: #ffffff1a;
+  }
+
+  /* background for new Note section,rightBar Lines */
+
+  .bg-custom_05 {
+    background-color: #ffffff0d;
+  }
+
+  /* text color one  */
+  .text-custom_01 {
+    color: #ffffff99;
+  }
+}
+
+/* darkMode: 'class', // Enable dark mode using class */
