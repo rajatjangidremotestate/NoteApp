@@ -4,13 +4,7 @@ import { useFetchRecentNotes } from "../../api/apiAxios.tsx";
 
 import { useParams } from "react-router-dom";
 
-export default function RecentNotes({
-  title,
-  setTitle,
-}: {
-  title: string;
-  setTitle: (pre: string) => string;
-}) {
+export default function RecentNotes({ title }: { title: string }) {
   const { data, isLoading, isError } = useFetchRecentNotes();
   const { noteId } = useParams();
 

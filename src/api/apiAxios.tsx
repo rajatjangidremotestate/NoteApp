@@ -116,8 +116,6 @@ export const useFetchFolderNotes = ({
   folderId,
   pageNo,
 }: FetchFolderNotesParams) => {
-  // Determining the query params based on folderId
-  const queryClient = useQueryClient();
   const queryParams = {
     folderId:
       folderId !== "favoriteNotes" &&
@@ -234,57 +232,69 @@ export const useCreateNote = () => {
       // console.log(data);
       return data;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notes"] }); // Refresh notes list
-      // queryClient.invalidateQueries({
-      //   queryKey: ["folder-notes", variables.folderId, variables.Page],
-      // });
     },
   });
 };
 
-// Update note for favorite/archive/status
-export const useUpdateNote = () => {
+// Update note for favorite/archive status
+export const useUpdateNote = (folderId: string, pageNo: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ noteId, updatedData }) => {
+    mutationFn: async ({
+      noteId,
+      updatedData,
+    }: {
+      noteId: string;
+      updatedData: { isFavorite: boolean; isArchived: boolean };
+    }) => {
       const { data } = await AxiosApi.patch(`/notes/${noteId}`, updatedData);
       return data;
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries(["note", variables.noteId]);
-      queryClient.invalidateQueries(["notes"]);
+      queryClient.invalidateQueries({ queryKey: ["note", variables.noteId] });
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      queryClient.invalidateQueries({
+        queryKey: ["folder-notes", folderId, pageNo],
+      });
     },
   });
 };
 
 //Delete Note by Id
-export const useDeleteNote = () => {
+export const useDeleteNote = (folderId: string, pageNo: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (noteId) => {
+    mutationFn: async (noteId: string) => {
       await AxiosApi.delete(`/notes/${noteId}`);
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (_, noteId) => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
-      queryClient.invalidateQueries(["note", variables.noteId]);
+      queryClient.invalidateQueries({ queryKey: ["note", noteId] });
+      queryClient.invalidateQueries({
+        queryKey: ["folder-notes", folderId, pageNo],
+      });
     },
   });
 };
 
 //Restore Note
-export const useRestoreNote = () => {
+export const useRestoreNote = (folderId: string, pageNo: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (noteId) => {
       await AxiosApi.post(`/notes/${noteId}/restore`);
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (_, noteId) => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
-      queryClient.invalidateQueries(["note", variables.noteId]);
+      queryClient.invalidateQueries({ queryKey: ["note", noteId] });
+      queryClient.invalidateQueries({
+        queryKey: ["folder-notes", folderId, pageNo],
+      });
     },
   });
 };
@@ -295,10 +305,11 @@ interface updateNoteData {
   folderId: string | undefined;
   title: string;
   content: string;
+  search: string;
 }
 
 // saving a note with using debounce
-export const useSaveNote = () => {
+export const useSaveNote = (folderId: string, pageNo: number) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, folderId, title, content }: updateNoteData) => {
@@ -309,9 +320,12 @@ export const useSaveNote = () => {
       });
       return data;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (_, noteId) => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
-      queryClient.invalidateQueries(["note", variables.noteId]);
+      queryClient.invalidateQueries({ queryKey: ["note", noteId] });
+      queryClient.invalidateQueries({
+        queryKey: ["folder-notes", folderId, pageNo],
+      });
     },
   });
 };
@@ -319,7 +333,7 @@ export const useSaveNote = () => {
 // notes according to search Text
 export const useSearchNotes = () => {
   return useMutation({
-    mutationFn: async ({ search }: updateNoteData) => {
+    mutationFn: async ({ search }: { search: string }) => {
       const { data } = await AxiosApi.get(`/notes`, {
         search,
       });

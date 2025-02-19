@@ -1,12 +1,14 @@
 import { useNavigate, useParams } from "react-router-dom";
 import restoreIcon from "../../assets/icons/restore.svg";
-import { useRestoreNote } from "../../api/apiAxios";
+import { useFetchNote, useRestoreNote } from "../../api/apiAxios";
 import { showToast } from "../ToastProvider";
+import { useEffect, useState } from "react";
 
 export default function RestoreNoteView() {
   const { folderId, noteId } = useParams();
-  const restoreNoteMutation = useRestoreNote();
-
+  const restoreNoteMutation = useRestoreNote(folderId, 1);
+  const [noteTitle, setNoteTitle] = useState("");
+  const { data } = useFetchNote(noteId || "");
   const notifyRestored = () => {
     showToast("Restored Successfully", "success");
   };
@@ -36,10 +38,17 @@ export default function RestoreNoteView() {
     });
   };
 
+  useEffect(() => {
+    if (data?.note?.title) setNoteTitle(data.note.title);
+    console.log(data);
+  }, [data]);
+
   return (
     <div className="bg-custom_01 h-full w-3/5 p-10 flex flex-col gap-3 items-center justify-center">
       <img src={restoreIcon} alt="" className="h-20" />
-      <p className="font-custom text-3xl text-center text-white">Restore {}</p>
+      <p className="font-custom text-3xl text-center text-white">
+        Restore "{noteTitle}""
+      </p>
       <p className="font-custom text-sm text-white text-center w-4/5">
         Don't want to lose this note? It's not too late! Just click the
         'Restore' button and it will be added back to your list. It's that

@@ -23,18 +23,18 @@ export default function NoteView({
   setTitle,
 }: {
   title: string;
-  setTitle: (pre: string) => string;
+  setTitle: (pre: string) => void;
 }) {
   const { folderId, noteId } = useParams();
   const [content, setContent] = useState("Content Default");
   // console.log(folderId);
   const { data: note, isLoading, error } = useFetchNote(noteId || "");
-  const updateNote = useUpdateNote();
+  const updateNote = useUpdateNote(folderId, 1);
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
 
   const { data: folders } = useFetchFolders();
-  const deleteNoteMutation = useDeleteNote();
+  const deleteNoteMutation = useDeleteNote(folderId, 1);
 
   const notify_01 = () => {
     showToast(
@@ -52,7 +52,7 @@ export default function NoteView({
   };
 
   const notify_03 = () => {
-    showToast("Note Deleted successfully", "warning");
+    showToast("Note Deleted successfully", "success");
   };
 
   const notifyError = () => {
@@ -85,7 +85,7 @@ export default function NoteView({
     goBack();
   };
 
-  const handleUpdateDelete = (updatedFields) => {
+  const handleUpdateDelete = () => {
     deleteNoteMutation.mutate(noteId, {
       onSuccess: () => {
         notify_03();
@@ -120,7 +120,7 @@ export default function NoteView({
   const folderName = arr.length > 0 ? arr[0].name : "";
 
   //For Saving notes
-  const { mutate: saveNote } = useSaveNote();
+  const { mutate: saveNote } = useSaveNote(folderId, 1);
 
   // Debounced save function
   const debouncedSaveNote = debounceFunction(
@@ -215,7 +215,7 @@ export default function NoteView({
           {isOpen && (
             <div
               ref={menuRef}
-              className="absolute right-0 mt-2 w-60 bg-custom_04 text-white shadow-lg rounded-lg border border-gray-300 overflow-hidden"
+              className="absolute right-0 mt-2 w-60 bg-custom_02 text-white shadow-lg rounded-lg border border-gray-300 overflow-hidden"
             >
               <button
                 className="font-custom w-full text-left px-4 py-2 hover:bg-gray-600 hover:cursor-pointer"

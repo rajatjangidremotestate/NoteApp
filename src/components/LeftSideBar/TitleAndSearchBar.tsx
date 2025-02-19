@@ -1,14 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import { SetStateAction, useEffect, useRef, useState } from "react";
 import { showToast } from "../ToastProvider";
-import { Link, useParams, Navigate, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { addIcon, pancileIcon, searchIcon } from "./ImportsAll";
 import { useCreateNote, useSearchNotes } from "../../api/apiAxios";
 import { useQueryClient } from "@tanstack/react-query";
 import { Box, CircularProgress } from "@mui/material";
 import debounceFunction from "../../api/debounceFunction";
-import { NavLink } from "react-router-dom";
 
-export default function TitleAndSearchBar({ setTitle }) {
+export default function TitleAndSearchBar({
+  setTitle,
+}: {
+  setTitle: (pre: string) => void;
+}) {
   // For Seach button and showing the search bar and ad notes
   const searchIconRef = useRef(null);
   const [isSearchVisible, setIsSearchVisible] = useState(false);
@@ -21,7 +24,19 @@ export default function TitleAndSearchBar({ setTitle }) {
   //   const [routeNoteId, setRouteNoteId] = useState("");
 
   const [searchText, setSearchText] = useState("");
-  const [filteredNotes, setFilteredNotes] = useState([]);
+  const [filteredNotes, setFilteredNotes] = useState<
+    | [
+        {
+          id: string;
+          title: string;
+          createdAt: string;
+          preview: string;
+          folderId: string;
+          folder: { id: string; name: string };
+        }
+      ]
+    | []
+  >([]);
 
   const navigate = useNavigate();
 
@@ -125,7 +140,7 @@ export default function TitleAndSearchBar({ setTitle }) {
     );
   }, 1000); // 1-second debounce
 
-  function handleSearchAll(e) {
+  function handleSearchAll(e: { target: { value: SetStateAction<string> } }) {
     setSearchText(e.target.value);
     debouncedSaveNote(e.target.value);
   }

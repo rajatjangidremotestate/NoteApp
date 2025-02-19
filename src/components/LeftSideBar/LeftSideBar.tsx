@@ -7,18 +7,14 @@ export default function LeftSideBar({
   setTitle,
 }: {
   title: string;
-  setTitle: (pre: string) => string;
+  setTitle: (title: string) => void;
 }) {
-  // function toggleDarkMode() {
-  //   document.documentElement.classList.toggle("dark");
-  // }
-
   return (
     <div className="bg-custom_01 h-full w-1/5 py-5 flex flex-col gap-2 border-r-2 border-black overflow-hidden">
       {/* logo and search icon dev */}
       <TitleAndSearchBar setTitle={setTitle} />
       {/* recents notes div */}
-      <RecentNotes title={title} setTitle={setTitle} />
+      <RecentNotes title={title} />
       {/* All Folders Div */}
       <Folders />
       {/* More 1. Favorites 2. Trash 3. Archived Notes  */}

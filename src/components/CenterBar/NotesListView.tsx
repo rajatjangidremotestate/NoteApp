@@ -5,11 +5,23 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import { useEffect, useState } from "react";
 
-export default function NotesListView({ title, setTitle }) {
+export default function NotesListView({ title }: { title: string }) {
   const { folderId } = useParams<{ folderId: string }>();
-  const [currnNotes, setCurrentNotes] = useState([]);
+  const [currnNotes, setCurrentNotes] = useState<
+    | [
+        {
+          id: string;
+          title: string;
+          createdAt: string;
+          preview: string;
+          folder: { id: string; name: string };
+        }
+      ]
+    | []
+  >([]);
   const [pageNo, setPageNo] = useState(1);
   const [folderRoute, setFolderRoute] = useState("");
+  // const [noteTitle, setNoteTitle] = useState();
   // console.log(folderId);
 
   const {
@@ -36,7 +48,7 @@ export default function NotesListView({ title, setTitle }) {
       : folderId === "trashNotes"
       ? "Trash Notes"
       : currnNotes && currnNotes.length > 0
-      ? currnNotes[0].folder.name
+      ? currnNotes[0]?.folder?.name
       : "Selected Folder is Empty";
 
   useEffect(() => {
@@ -54,27 +66,40 @@ export default function NotesListView({ title, setTitle }) {
   }, [folderId]);
 
   useEffect(() => {
-    console.log(notes);
     if (notes?.notes) {
+      // console.log(note)
       // setCurrentNotes((prev) => [...prev, ...notes.notes]);
       setCurrentNotes((prev) => {
-        if (folderId === "archivedNotes") {
+        if (
+          folderId === "archivedNotes" ||
+          folderId === "favoriteNotes" ||
+          folderId === "trashNotes"
+        ) {
           return [...notes.notes];
         }
         const combinedNotes =
-          notes.PageNo == 1
-            ? [...notes.notes, ...prev]
-            : [...prev, ...notes.notes];
+          notes.PageNo == 1 ? [...notes.notes] : [...prev, ...notes.notes];
 
         // Use a Map to keep only unique notes by id
         const uniqueNotes = Array.from(
           new Map(combinedNotes.map((note) => [note.id, note])).values()
         );
-
         return uniqueNotes;
       });
     }
   }, [notes]);
+  // useEffect(() => {
+  //   const titleName = notes?.notes?.filter((note) => {
+  //     if (note.id === noteId) {
+  //       return note;
+  //     }
+  //     return;
+  //   })[0]?.title;
+  //   setNoteTitle(titleName);
+  // }, [notes, noteId]);
+  // useEffect(() => {
+  //   setNoteTitle(title);
+  // }, [title]);
   const handleLoadMore = () => {
     setPageNo((prevPage) => prevPage + 1);
   };
@@ -139,6 +164,7 @@ export default function NotesListView({ title, setTitle }) {
                   {/* <p className="text-white font-custom ">{note.title}</p> */}
                   <p className="text-white font-custom style-none ">
                     {note.id === noteId ? title : note.title}
+                    {/* {noteTitle} */}
                   </p>
                   {/* Date and Contain...  */}
                   <div className="flex h-5 justify-between">
@@ -154,7 +180,7 @@ export default function NotesListView({ title, setTitle }) {
             </li>
           ))}
 
-        {notes?.totalNotes > currnNotes.length && (
+        {notes?.totalNotes > currnNotes?.length && (
           <button
             onClick={handleLoadMore}
             className="flex justify-center font-custom text-white bg-custom_01 rounded-sm py-1 mt-2 hover:cursor-pointer items-center"
