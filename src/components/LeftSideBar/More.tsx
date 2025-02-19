@@ -1,5 +1,5 @@
 import { NavLink, useParams } from "react-router-dom";
-import { favoritesIcon, trashIcon, archivedIcon } from "./ImportsAll";
+import { favoritesIcon, trashIcon, archivedIcon } from ".";
 
 export default function More() {
   const { folderId } = useParams();

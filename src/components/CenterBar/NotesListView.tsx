@@ -1,44 +1,25 @@
 import { useParams } from "react-router-dom";
-import { useFetchFolderNotes } from "../../api/apiAxios";
+import { Note, useFetchFolderNotes } from "../../api/apiAxios";
 import { NavLink } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import { useEffect, useState } from "react";
 
 export default function NotesListView({ title }: { title: string }) {
-  const { folderId } = useParams<{ folderId: string }>();
-  const [currnNotes, setCurrentNotes] = useState<
-    | [
-        {
-          id: string;
-          title: string;
-          createdAt: string;
-          preview: string;
-          folder: { id: string; name: string };
-        }
-      ]
-    | []
-  >([]);
+  const { folderId } = useParams() as {
+    folderId: string;
+  };
+  const [currnNotes, setCurrentNotes] = useState<Note[]>([]);
   const [pageNo, setPageNo] = useState(1);
   const [folderRoute, setFolderRoute] = useState("");
-  // const [noteTitle, setNoteTitle] = useState();
-  // console.log(folderId);
-
   const {
     data: notes,
     isLoading,
     isError,
+    error,
   } = useFetchFolderNotes({ folderId, pageNo });
 
-  // const currnNotes = notes?.notes || [];
-  // setCurrentNotes(notes && notes.notes);
   const { noteId } = useParams();
-
-  // const folderName = currnNotes.length > 0 ? currnNotes[0].folder.name : "";
-  // console.log(folderId);
-
-  // useEffect(() => {
-  // }, [notes]);
 
   const folderName =
     folderId === "favoriteNotes"
@@ -88,18 +69,7 @@ export default function NotesListView({ title }: { title: string }) {
       });
     }
   }, [notes]);
-  // useEffect(() => {
-  //   const titleName = notes?.notes?.filter((note) => {
-  //     if (note.id === noteId) {
-  //       return note;
-  //     }
-  //     return;
-  //   })[0]?.title;
-  //   setNoteTitle(titleName);
-  // }, [notes, noteId]);
-  // useEffect(() => {
-  //   setNoteTitle(title);
-  // }, [title]);
+
   const handleLoadMore = () => {
     setPageNo((prevPage) => prevPage + 1);
   };
@@ -135,7 +105,7 @@ export default function NotesListView({ title }: { title: string }) {
     return (
       <div className="bg-custom_02 h-full w-1/5 py-5 flex flex-col gap-2">
         <p className="font-custom text-lg text-white px-4">
-          Error fetching notes
+          Error fetching notes {error?.message || "Unknown error"}
         </p>
       </div>
     );

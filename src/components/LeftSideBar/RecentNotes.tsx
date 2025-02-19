@@ -1,14 +1,12 @@
-import { recentNoteIcon } from "./ImportsAll";
-import { NavLink } from "react-router-dom";
-import { useFetchRecentNotes } from "../../api/apiAxios.tsx";
-
-import { useParams } from "react-router-dom";
+import { recentNoteIcon, useFetchRecentNotes } from "./index.tsx";
+import { NavLink, useParams } from "react-router-dom";
+import { Note } from "../../api/apiAxios.tsx";
 
 export default function RecentNotes({ title }: { title: string }) {
   const { data, isLoading, isError } = useFetchRecentNotes();
   const { noteId } = useParams();
 
-  const recentNotes = data?.recentNotes || [];
+  const recentNotes: Note[] = data?.recentNotes || [];
 
   //Testing Loading and all
   if (isLoading)
@@ -59,9 +57,11 @@ export default function RecentNotes({ title }: { title: string }) {
                     ? title?.length > 20
                       ? title.slice(0, 20)
                       : title
-                    : note?.title.length > 20
-                    ? note.title.slice(0, 20).concat("...")
-                    : note.title}
+                    : note?.title
+                    ? note.title.length > 20
+                      ? note.title.slice(0, 20).concat("...")
+                      : note.title
+                    : ""}
                 </p>
               </NavLink>
             </li>

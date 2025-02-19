@@ -6,6 +6,7 @@ import Box from "@mui/material/Box";
 
 import { useNavigate, useParams } from "react-router-dom";
 import {
+  NoteData,
   useDeleteNote,
   useFetchFolders,
   useFetchNote,
@@ -15,7 +16,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { showToast } from "../ToastProvider";
 import RestoreNoteView from "./RestoreNoteView";
-import debounceFunction from "../../api/debounceFunction";
+import useDebounceFunction from "../../api/useDebounceFunction";
 import SelectNoteView from "./SelectNoteView";
 
 export default function NoteView({
@@ -29,12 +30,13 @@ export default function NoteView({
   const [content, setContent] = useState("Content Default");
   // console.log(folderId);
   const { data: note, isLoading, error } = useFetchNote(noteId || "");
-  const updateNote = useUpdateNote(folderId, 1);
+  const updateNote = useUpdateNote(folderId ?? "", 1);
   const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef(null);
+  // const menuRef = useRef(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const { data: folders } = useFetchFolders();
-  const deleteNoteMutation = useDeleteNote(folderId, 1);
+  const deleteNoteMutation = useDeleteNote(folderId ?? "", 1);
 
   const notify_01 = () => {
     showToast(
@@ -69,7 +71,7 @@ export default function NoteView({
     navigate(`restore`); // Navigates back to the home route
   };
 
-  const handleUpdateFavorite = (updatedFields) => {
+  const handleUpdateFavorite = (updatedFields: NoteData) => {
     if (!noteId) return;
     updateNote.mutate({ noteId, updatedData: updatedFields });
     setIsOpen(false);
@@ -77,7 +79,7 @@ export default function NoteView({
     if (note?.note?.isFavorite && folderId === "favoriteNotes") goBack();
   };
 
-  const handleUpdateArchived = (updatedFields) => {
+  const handleUpdateArchived = (updatedFields: NoteData) => {
     if (!noteId) return;
     updateNote.mutate({ noteId, updatedData: updatedFields });
     setIsOpen(false);
@@ -86,6 +88,10 @@ export default function NoteView({
   };
 
   const handleUpdateDelete = () => {
+    if (!noteId) {
+      notifyError(); // Handle the undefined case
+      return;
+    }
     deleteNoteMutation.mutate(noteId, {
       onSuccess: () => {
         notify_03();
@@ -120,10 +126,10 @@ export default function NoteView({
   const folderName = arr.length > 0 ? arr[0].name : "";
 
   //For Saving notes
-  const { mutate: saveNote } = useSaveNote(folderId, 1);
+  const { mutate: saveNote } = useSaveNote(folderId ?? "", 1);
 
   // Debounced save function
-  const debouncedSaveNote = debounceFunction(
+  const debouncedSaveNote = useDebounceFunction(
     (updatedTitle: string, updatedContent: string) => {
       saveNote(
         {
@@ -151,19 +157,19 @@ export default function NoteView({
   ); // 1-second debounce
 
   // Handle changes and trigger the debounced save
-  const handleTitleChange = (e) => {
+  const handleTitleChange = (e: { target: { value: string } }) => {
     setTitle(e.target.value);
     debouncedSaveNote(e.target.value, content);
   };
 
-  const handleContentChange = (e) => {
+  const handleContentChange = (e: { target: { value: string } }) => {
     setContent(e.target.value);
     debouncedSaveNote(title, e.target.value);
   };
 
   useEffect(() => {
-    const handleClickOutside = (event: { target: unknown }) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };

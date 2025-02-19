@@ -7,19 +7,16 @@ import {
   useFetchFolders,
   useCreateFolder,
   useUpdateFolder,
+  Folder,
 } from "../../api/apiAxios";
-import {
-  addFloderIcon,
-  normalFolderIcon,
-  selecteFolderIcon,
-} from "./ImportsAll";
+import { addFloderIcon, normalFolderIcon, selecteFolderIcon } from ".";
 import { useEffect, useRef, useState } from "react";
 
 export default function Folders() {
   const { data, isLoading: LodingFolders, isError } = useFetchFolders();
   const { mutate: mutateNewFolder } = useCreateFolder();
   const { mutate: mutateUpdateFolder } = useUpdateFolder();
-  const folders = data?.folders || [];
+  const folders: Folder[] = data?.folders || [];
   // console.log(folders);
 
   const notify_01 = () => {
@@ -42,15 +39,7 @@ export default function Folders() {
 
   const { folderId, noteId } = useParams();
 
-  // useEffect(() => {
-  //   if (folderId === undefined) {
-  //     const firstFolderId = folders.length > 0 && folders[0].id;
-  //     <Navigate to={`/folder/${firstFolderId}`} />;
-  //   }
-  // }, [folderId, folders]);
-
-  // When we select any note then automatically select that note folder and focus it
-  const activeRef = useRef(null);
+  const activeRef = useRef<HTMLElement | null>(null);
   useEffect(() => {
     if (activeRef.current !== null) {
       if (activeRef.current) {
@@ -152,20 +141,6 @@ export default function Folders() {
         <ul className="overflow-y-scroll w-full">
           {folders.map((folder) => (
             <li key={folder.id}>
-              {/* <NavLink
-                to={`/folder/${folder.id}`}
-                className="flex px-4 py-1 gap-2 items-center hover:bg-gray-800"
-                ref={folder.id === folderId ? activeRef : null}
-              >
-                <img src={normalFolderIcon} alt="" className="h-4" />
-                <p
-                  className={`flex font-custom text-white text-sm ${
-                    folder.id === folderId ? "opacity-full" : "opacity-60"
-                  }`}
-                >
-                  {folder.name}
-                </p>
-              </NavLink> */}
               {editingId === folder.id ? (
                 <div className="flex px-4 py-1 gap-2 items-center">
                   <img
@@ -189,7 +164,11 @@ export default function Folders() {
                 <NavLink
                   to={`/folder/${folder.id}`}
                   className="flex px-4 py-1 gap-2 items-center hover:bg-gray-800"
-                  ref={folder.id === folderId ? activeRef : null}
+                  ref={(el) => {
+                    if (folder.id === folderId) {
+                      activeRef.current = el;
+                    }
+                  }}
                   onDoubleClick={() =>
                     handleDoubleClick(folder.id, folder.name)
                   }

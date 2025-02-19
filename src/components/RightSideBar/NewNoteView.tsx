@@ -105,10 +105,10 @@ export default function AddNewNotePage() {
         {/* Save Button */}
         <button
           onClick={handleCreateNote}
-          disabled={createNoteMutation.isPending}
+          disabled={createNote.isPending}
           className="font-custom bg-blue-700 text-white p-2 rounded hover:cursor-pointer"
         >
-          {createNoteMutation.isPending ? "Creating..." : "Add as New Note"}
+          {createNote.isPending ? "Creating..." : "Add as New Note"}
         </button>
       </div>
     </>

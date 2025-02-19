@@ -2,7 +2,7 @@
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const showToast = (message, type = "success") => {
+const showToast = (message: string, type = "success") => {
   if (type === "success") toast.success(message);
   else if (type === "error") toast.error(message);
   else if (type === "warning") toast.warn(message);

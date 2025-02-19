@@ -5,31 +5,25 @@ const AxiosApi = axios.create({
   baseURL: "https://nowted-server.remotestate.com",
 });
 
-interface Folder {
+export interface Folder {
   id: string;
   name: string;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string;
 }
 
-interface Note {
-  id: string;
-  folderId: string;
-  title: string;
-  isFavorite: boolean;
-  isArchived: boolean;
+export interface Note {
+  id?: string;
+  folderId?: string;
+  title?: string;
+  isFavorite?: boolean;
+  isArchived?: boolean;
   createdAt: string;
   updatedAt: string;
-  deletedAt: string;
+  deletedAt?: string;
   preview: string;
-  folder: {
-    id: string;
-    name: string;
-    createdAt: string;
-    updatedAt: string;
-    deletedAt: string;
-  };
+  folder?: Folder;
 }
 
 interface NotesResponse {
@@ -89,11 +83,25 @@ interface UpdateFolderPayload {
   updatedData: { name: string };
 }
 
+interface UpdateFolderSuccessResponse {
+  message: string; // "Folder updated successfully"
+}
+interface UpdateFolderErrorResponse {
+  message: string;
+}
+
 export const useUpdateFolder = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async ({ folderId, updatedData }: UpdateFolderPayload) => {
+  return useMutation<
+    UpdateFolderSuccessResponse,
+    UpdateFolderErrorResponse,
+    UpdateFolderPayload
+  >({
+    mutationFn: async ({ folderId, updatedData }) => {
+      if (!folderId || folderId.trim() === "") {
+        throw new Error("folderId is required and cannot be an empty string");
+      }
       const { data } = await AxiosApi.patch(
         `/folders/${folderId}`,
         updatedData
@@ -129,69 +137,12 @@ export const useFetchFolderNotes = ({
     page: pageNo,
   };
 
-  // return useQuery({
-  //   queryKey: ["folder-notes", folderId, pageNo],
-  //   queryFn: async ({ queryKey }) => {
-  //     const [, , currentPage] = queryKey;
-  //     const { data } = await AxiosApi.get(`/notes`, {
-  //       params: queryParams,
-  //     });
-  //     // return data;
-  //     // If pageNo === 1, return data normally
-  //     if (currentPage === 1) {
-  //       return data.notes;
-  //     }
-
-  //     // If pageNo > 1, append new notes to previous notes
-  //     // return (prevData) => ({
-  //     //   ...data,
-  //     //   notes: [...(prevData?.notes || []), ...data.notes],
-  //     // });
-  //     return (prevData) => [...(prevData || []), ...data.notes];
-  //   },
-  //   enabled: !!folderId, // Ensure the query only runs if folderId is available
-  //   staleTime: 5 * 60 * 1000, // Cache data for 5 minutes
-  // });
-
-  //   return useQuery({
-  //     queryKey: ["folder-notes", folderId, pageNo],
-  //     queryFn: async ({ queryKey }) => {
-  //       const [, , currentPage] = queryKey;
-  //       const { data } = await AxiosApi.get(`/notes`, {
-  //         params: queryParams,
-  //       });
-
-  //       // If pageNo === 1, return notes directly
-  //       if (currentPage === 1) {
-  //         return data.notes;
-  //       }
-
-  //       // If pageNo > 1, append new notes to previous notes
-  //       return (prevData) => [...(prevData || []), ...data.notes];
-  //     },
-  //     enabled: !!folderId, // Ensure the query only runs if folderId is available
-  //     staleTime: 5 * 60 * 1000, // Cache data for 5 minutes
-  //   });
-  // };
-
   return useQuery({
     queryKey: ["folder-notes", folderId, pageNo],
     queryFn: async () => {
       const { data } = await AxiosApi.get(`/notes`, {
         params: queryParams,
       });
-
-      // Get previous notes from cache
-
-      // // If pageNo === 1, return only the current page notes
-      // if (pageNo === 1) {
-      //   return data.notes;
-      // }
-
-      // // If pageNo > 1, append new notes to previous notes
-      // return [...previousData, ...data.notes];
-      // if (pageNo === 1) {
-      // }
       return { notes: data.notes, totalNotes: data.total, PageNo: pageNo };
     },
     enabled: !!folderId, // Ensure the query only runs if folderId is available
@@ -213,13 +164,13 @@ export const useFetchNote = (noteId: string | null) => {
 };
 
 // Define the Note type
-interface NoteData {
-  folderId: string;
-  title: string;
-  content: string;
-  isFavorite: boolean;
-  isArchived: boolean;
-  Page: number; //For making new Note at Top test
+export interface NoteData {
+  folderId?: string;
+  title?: string;
+  content?: string;
+  isFavorite?: boolean;
+  isArchived?: boolean;
+  Page?: number; //For making new Note at Top test
 }
 
 // Hook to create a new note
@@ -248,7 +199,7 @@ export const useUpdateNote = (folderId: string, pageNo: number) => {
       updatedData,
     }: {
       noteId: string;
-      updatedData: { isFavorite: boolean; isArchived: boolean };
+      updatedData: NoteData;
     }) => {
       const { data } = await AxiosApi.patch(`/notes/${noteId}`, updatedData);
       return data;
@@ -286,7 +237,7 @@ export const useRestoreNote = (folderId: string, pageNo: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (noteId) => {
+    mutationFn: async (noteId: string) => {
       await AxiosApi.post(`/notes/${noteId}/restore`);
     },
     onSuccess: (_, noteId) => {
@@ -302,10 +253,10 @@ export const useRestoreNote = (folderId: string, pageNo: number) => {
 // Define the Note type
 interface updateNoteData {
   id: string | undefined;
-  folderId: string | undefined;
-  title: string;
-  content: string;
-  search: string;
+  folderId?: string | undefined;
+  title?: string;
+  content?: string;
+  search?: string;
 }
 
 // saving a note with using debounce
@@ -330,12 +281,16 @@ export const useSaveNote = (folderId: string, pageNo: number) => {
   });
 };
 
+interface SearchNotesResponse {
+  notes: Note[];
+}
+
 // notes according to search Text
 export const useSearchNotes = () => {
-  return useMutation({
-    mutationFn: async ({ search }: { search: string }) => {
-      const { data } = await AxiosApi.get(`/notes`, {
-        search,
+  return useMutation<SearchNotesResponse, Error, string>({
+    mutationFn: async (search) => {
+      const { data } = await AxiosApi.get<SearchNotesResponse>(`/notes`, {
+        params: { search },
       });
       return data;
     },
