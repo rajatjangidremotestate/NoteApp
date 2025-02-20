@@ -1,25 +1,27 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import folderIcon from "../../assets/icons/normalFolder.svg";
 import dateIcon from "../../assets/icons/date.svg";
-import { useCreateNote, useFetchFolders } from "../../api/apiAxios";
+import { useCreateNote, useFetchFolders } from "../../api/apiHooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { showToast } from "../ToastProvider";
 
+const notify_01 = () => {
+  showToast("Note Added !", "success");
+};
 export default function AddNewNotePage() {
   const { folderId } = useParams<{ folderId: string }>();
   const { data: folders } = useFetchFolders();
 
   const navigate = useNavigate();
 
-  const goBack = () => {
+  const goBack = useCallback(() => {
     navigate(`/folder/${folderId}`); // Navigates back to the home route
-  };
+  }, [navigate, folderId]);
 
   const createNote = useCreateNote();
 
-  // Get the current date in YYYY-MM-DD format
-  const currentDate = new Date().toISOString().split("T")[0];
+  const currentDate = new Date().toLocaleDateString(); // This gives you the date in the local format
 
   // Find folder name based on folderId
   const folderName =
@@ -32,11 +34,7 @@ export default function AddNewNotePage() {
 
   const queryClient = useQueryClient();
 
-  const notify_01 = () => {
-    showToast("Note Added !", "success");
-  };
-
-  const handleCreateNote = async () => {
+  const handleCreateNote = useCallback(async () => {
     if (!title.trim()) {
       alert("Folder ID and title are required!");
       return;
@@ -58,7 +56,7 @@ export default function AddNewNotePage() {
         },
       }
     );
-  };
+  }, [content, folderId, title, createNote, goBack, queryClient]);
 
   return (
     <>

@@ -1,9 +1,9 @@
 import { useParams } from "react-router-dom";
-import { Note, useFetchFolderNotes } from "../../api/apiAxios";
+import { Note, useFetchFolderNotes } from "../../api/apiHooks";
 import { NavLink } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function NotesListView({ title }: { title: string }) {
   const { folderId } = useParams() as {
@@ -21,16 +21,19 @@ export default function NotesListView({ title }: { title: string }) {
 
   const { noteId } = useParams();
 
-  const folderName =
-    folderId === "favoriteNotes"
-      ? "Favorite Notes"
-      : folderId === "archivedNotes"
-      ? "Archived Notes"
-      : folderId === "trashNotes"
-      ? "Trash Notes"
-      : currnNotes && currnNotes.length > 0
-      ? currnNotes[0]?.folder?.name
-      : "Selected Folder is Empty";
+  const folderName = useMemo(() => {
+    if (folderId === "favoriteNotes") {
+      return "Favorite Notes";
+    } else if (folderId === "archivedNotes") {
+      return "Archived Notes";
+    } else if (folderId === "trashNotes") {
+      return "Trash Notes";
+    } else if (currnNotes && currnNotes.length > 0) {
+      return currnNotes[0]?.folder?.name;
+    } else {
+      return "Selected Folder is Empty";
+    }
+  }, [folderId, currnNotes]);
 
   useEffect(() => {
     setPageNo(1);
@@ -48,8 +51,6 @@ export default function NotesListView({ title }: { title: string }) {
 
   useEffect(() => {
     if (notes?.notes) {
-      // console.log(note)
-      // setCurrentNotes((prev) => [...prev, ...notes.notes]);
       setCurrentNotes((prev) => {
         if (
           folderId === "archivedNotes" ||
@@ -68,11 +69,7 @@ export default function NotesListView({ title }: { title: string }) {
         return uniqueNotes;
       });
     }
-  }, [notes]);
-
-  const handleLoadMore = () => {
-    setPageNo((prevPage) => prevPage + 1);
-  };
+  }, [notes, folderId]);
 
   if (isLoading && pageNo == 1)
     return (
@@ -95,8 +92,8 @@ export default function NotesListView({ title }: { title: string }) {
           <p className="font-custom text-lg text-white px-2">Loading Notes </p>
         </div>
         <div className="rounded-sm p-3 flex flex-col gap-1.5">
-          {[...Array(Math.round(Math.random() * 10) + 3)].map(() => (
-            <div className="bg-custom_01 h-7"></div>
+          {[...Array(Math.round(Math.random() * 10) + 3)].map((_, index) => (
+            <div key={index} className="bg-custom_01 h-7"></div>
           ))}
         </div>
       </div>
@@ -119,10 +116,11 @@ export default function NotesListView({ title }: { title: string }) {
       <ul className="flex flex-col gap-1.5 px-4 py-2 h-full overflow-y-auto">
         {currnNotes !== undefined &&
           currnNotes.length > 0 &&
-          currnNotes.map((note) => (
-            <li key={note.id}>
+          currnNotes.map((note, index) => (
+            <li key={index}>
               <NavLink
                 // to={`/folder/${note.folderId}/note/${note.id}`}
+                key={index}
                 to={`/folder/${folderRoute}/note/${note.id}`}
                 // onClick={() => handleChangeTitle(note ? note.title : "")}
                 className={` rounded-sm p-3 flex flex-col gap-1.5 hover:bg-gray-800 ${
@@ -152,7 +150,7 @@ export default function NotesListView({ title }: { title: string }) {
 
         {notes?.totalNotes > currnNotes?.length && (
           <button
-            onClick={handleLoadMore}
+            onClick={() => setPageNo((prevPage) => prevPage + 1)}
             className="flex justify-center font-custom text-white bg-custom_01 rounded-sm py-1 mt-2 hover:cursor-pointer items-center"
           >
             {isLoading ? (

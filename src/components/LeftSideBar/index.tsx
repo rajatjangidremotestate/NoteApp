@@ -8,7 +8,7 @@ import favoritesIcon from "../../assets/icons/Favorites.svg";
 import trashIcon from "../../assets/icons/Trash.svg";
 import archivedIcon from "../../assets/icons/ArchivedNote.svg";
 import selecteFolderIcon from "../../assets/icons/SelectedFolder.svg";
-import { useFetchRecentNotes } from "../../api/apiAxios.tsx";
+import { useFetchRecentNotes } from "../../api/apiHooks.tsx";
 
 export {
   pancileIcon,

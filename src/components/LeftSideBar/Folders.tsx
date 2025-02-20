@@ -8,26 +8,19 @@ import {
   useCreateFolder,
   useUpdateFolder,
   Folder,
-} from "../../api/apiAxios";
+} from "../../api/apiHooks";
 import { addFloderIcon, normalFolderIcon, selecteFolderIcon } from ".";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+const notify_03 = () => {
+  showToast("!! Error !!", "error");
+};
 
 export default function Folders() {
   const { data, isLoading: LodingFolders, isError } = useFetchFolders();
   const { mutate: mutateNewFolder } = useCreateFolder();
   const { mutate: mutateUpdateFolder } = useUpdateFolder();
   const folders: Folder[] = data?.folders || [];
-  // console.log(folders);
-
-  const notify_01 = () => {
-    showToast("New Folder Added !", "success");
-  };
-  const notify_02 = () => {
-    showToast("Folder Updated !", "success");
-  };
-  const notify_03 = () => {
-    showToast("!! Error !!", "error");
-  };
 
   // For Editing Folder Name
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -36,7 +29,6 @@ export default function Folders() {
   const [isUpdating, setIsUpdating] = useState(false);
   //Tracking for adding New Folder Loading
   const [isAdding, setIsAdding] = useState(false);
-
   const { folderId, noteId } = useParams();
 
   const activeRef = useRef<HTMLElement | null>(null);
@@ -51,16 +43,14 @@ export default function Folders() {
     }
   }, [folderId, noteId]);
 
-  // Add new folder in backend
-  const handleAddFolder = () => {
-    // mutateNewFolder({ name: "New_Folder" });
+  const handleAddFolder = useCallback(() => {
     setIsAdding(true); // Start loading before API call
 
     mutateNewFolder(
       { name: "New_Folder" },
       {
         onSuccess: () => {
-          notify_01();
+          showToast("New Folder Added!", "success");
           setIsAdding(false); // Stop loading when successful
         },
         onError: () => {
@@ -68,38 +58,42 @@ export default function Folders() {
         },
       }
     );
-  };
+  }, [mutateNewFolder, setIsAdding]);
 
-  //  Enable rename mode
-  const handleDoubleClick = (id: string, name: string) => {
-    setEditingId(id);
-    setNewName(name);
-  };
+  const handleDoubleClick = useCallback(
+    (id: string, name: string) => {
+      setEditingId(id);
+      setNewName(name);
+    },
+    [setEditingId, setNewName]
+  );
 
   //  Save renamed folder
-  const handleRename = (id: string) => {
-    if (newName.trim() === "") return;
-    // mutateUpdateFolder({ folderId: id, updatedData: { name: newName } });
 
-    setIsUpdating(true); // Start loading before API call
-    mutateUpdateFolder(
-      { folderId: id, updatedData: { name: newName } },
-      {
-        onSuccess: () => {
-          notify_02();
-          setIsUpdating(false); // Stop loading when successful
-        },
-        onError: () => {
-          notify_03();
-          setIsUpdating(false); // Stop loading if there's an error
-        },
-      }
-    );
+  const handleRename = useCallback(
+    (id: string) => {
+      if (newName.trim() === "") return;
 
-    setEditingId(null);
-  };
+      setIsUpdating(true); // Start loading before API call
+      mutateUpdateFolder(
+        { folderId: id, updatedData: { name: newName } },
+        {
+          onSuccess: () => {
+            showToast("Folder Updated!", "success");
+            setIsUpdating(false); // Stop loading when successful
+          },
+          onError: () => {
+            notify_03();
+            setIsUpdating(false); // Stop loading if there's an error
+          },
+        }
+      );
 
-  //Testing Loading and all
+      setEditingId(null);
+    },
+    [newName, mutateUpdateFolder, setIsUpdating, setEditingId]
+  );
+
   // if (LodingFolders) return <p>Loading Folders...</p>;
   if (isError) return <p>Failed to load Folder.</p>;
 
@@ -173,20 +167,6 @@ export default function Folders() {
                     handleDoubleClick(folder.id, folder.name)
                   }
                 >
-                  {/* <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      height: "12px",
-                    }}
-                  >
-                    <CircularProgress
-                      sx={{ color: "#ffffff" }}
-                      size={10}
-                      thickness={8}
-                    />
-                  </Box> */}
                   {isUpdating && folder.id === folderId ? (
                     <Box
                       sx={{

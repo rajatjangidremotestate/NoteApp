@@ -6,18 +6,37 @@ import Box from "@mui/material/Box";
 
 import { useNavigate, useParams } from "react-router-dom";
 import {
+  Note,
   NoteData,
   useDeleteNote,
   useFetchFolders,
   useFetchNote,
   useSaveNote,
   useUpdateNote,
-} from "../../api/apiAxios";
-import { useEffect, useRef, useState } from "react";
+} from "../../api/apiHooks";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { showToast } from "../ToastProvider";
 import RestoreNoteView from "./RestoreNoteView";
 import useDebounceFunction from "../../api/useDebounceFunction";
 import SelectNoteView from "./SelectNoteView";
+
+const notify_01 = (note: Note) => {
+  showToast(
+    `${note?.isFavorite ? "Removed from Favorite" : "Added to Favorite"}`,
+    "success"
+  );
+};
+const notify_02 = (note: Note) => {
+  showToast(`${note?.isArchived ? "Unarchived" : "Archived"}`, "success");
+};
+
+const notify_03 = () => {
+  showToast("Note Deleted successfully", "success");
+};
+
+const notifyError = () => {
+  showToast("Error Occurs", "error");
+};
 
 export default function NoteView({
   title,
@@ -30,36 +49,13 @@ export default function NoteView({
   const [content, setContent] = useState("Content Default");
   // console.log(folderId);
   const { data: note, isLoading, error } = useFetchNote(noteId || "");
-  const updateNote = useUpdateNote(folderId ?? "", 1);
+  const updateNote = useUpdateNote(note?.note?.folderId ?? "", 1);
   const [isOpen, setIsOpen] = useState(false);
   // const menuRef = useRef(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const { data: folders } = useFetchFolders();
   const deleteNoteMutation = useDeleteNote(folderId ?? "", 1);
-
-  const notify_01 = () => {
-    showToast(
-      `${
-        note?.note?.isFavorite ? "Removed from Favorite" : "Added to Favorite"
-      }`,
-      "success"
-    );
-  };
-  const notify_02 = () => {
-    showToast(
-      `${note?.note?.isArchived ? "Unarchived" : "Archived"}`,
-      "success"
-    );
-  };
-
-  const notify_03 = () => {
-    showToast("Note Deleted successfully", "success");
-  };
-
-  const notifyError = () => {
-    showToast("Error Occurs", "error");
-  };
 
   const navigate = useNavigate();
 
@@ -75,7 +71,7 @@ export default function NoteView({
     if (!noteId) return;
     updateNote.mutate({ noteId, updatedData: updatedFields });
     setIsOpen(false);
-    notify_01();
+    notify_01(note?.note);
     if (note?.note?.isFavorite && folderId === "favoriteNotes") goBack();
   };
 
@@ -83,7 +79,7 @@ export default function NoteView({
     if (!noteId) return;
     updateNote.mutate({ noteId, updatedData: updatedFields });
     setIsOpen(false);
-    notify_02();
+    notify_02(note?.note);
     goBack();
   };
 
@@ -103,14 +99,15 @@ export default function NoteView({
     });
   };
 
-  const Note = note?.note || {};
+  // const Note = note?.note || {};
+  const Note = useMemo(() => note?.note || {}, [note?.note]);
 
   useEffect(() => {
     const valueContent = Note.content;
     // console.log("Note Title changed to : " + Note.content);
     setTitle(Note.title);
     setContent(valueContent);
-  }, [Note]);
+  }, [Note, setTitle]);
 
   const Folders = folders?.folders || [];
   const arr =
@@ -128,44 +125,51 @@ export default function NoteView({
   //For Saving notes
   const { mutate: saveNote } = useSaveNote(folderId ?? "", 1);
 
-  // Debounced save function
   const debouncedSaveNote = useDebounceFunction(
-    (updatedTitle: string, updatedContent: string) => {
-      saveNote(
-        {
-          id: noteId,
-          folderId,
-          title: updatedTitle,
-          content: updatedContent,
-        },
-        {
-          onSuccess: () => {
-            // console.log("Changed Note");
-            const noteSavedElement = document.getElementById("noteSaved");
-            if (noteSavedElement) {
-              // Show the element first, then hide it after 1 second
-              noteSavedElement.style.display = "block"; // or "flex" if using Flexbox
-              setTimeout(() => {
-                noteSavedElement.style.display = "none";
-              }, 1000);
-            }
+    useCallback(
+      (updatedTitle: string, updatedContent: string) => {
+        saveNote(
+          {
+            id: noteId,
+            folderId,
+            title: updatedTitle,
+            content: updatedContent,
           },
-        }
-      );
-    },
-    1000
-  ); // 1-second debounce
+          {
+            onSuccess: () => {
+              // Show the "note saved" message
+              const noteSavedElement = document.getElementById("noteSaved");
+              if (noteSavedElement) {
+                noteSavedElement.style.display = "block"; // Show the element
+                setTimeout(() => {
+                  noteSavedElement.style.display = "none"; // Hide after 1 second
+                }, 1000);
+              }
+            },
+          }
+        );
+      },
+      [noteId, folderId, saveNote] // Add dependencies like noteId and folderId to ensure they are available
+    ),
+    400
+  );
 
   // Handle changes and trigger the debounced save
-  const handleTitleChange = (e: { target: { value: string } }) => {
-    setTitle(e.target.value);
-    debouncedSaveNote(e.target.value, content);
-  };
+  const handleTitleChange = useCallback(
+    (e: { target: { value: string } }) => {
+      setTitle(e.target.value);
+      debouncedSaveNote(e.target.value, content);
+    },
+    [content, debouncedSaveNote, setTitle]
+  );
 
-  const handleContentChange = (e: { target: { value: string } }) => {
-    setContent(e.target.value);
-    debouncedSaveNote(title, e.target.value);
-  };
+  const handleContentChange = useCallback(
+    (e: { target: { value: string } }) => {
+      setContent(e.target.value);
+      debouncedSaveNote(title, e.target.value);
+    },
+    [debouncedSaveNote, title]
+  );
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -208,7 +212,7 @@ export default function NoteView({
         {/* <p className="font-custom text-3xl text-white">{note?.note?.title}</p> */}
         <input
           className="font-custom text-3xl text-white w-full outline-none"
-          value={title}
+          value={title || ""}
           onChange={handleTitleChange}
         ></input>
         <div className="relative inline-block">

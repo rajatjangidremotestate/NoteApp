@@ -34,6 +34,52 @@ interface FolderResponse {
   folders: Folder[];
 }
 
+//Newfolder creation payload
+interface NewFolder {
+  name: string;
+}
+
+// updateFolder payload
+interface UpdateFolderPayload {
+  folderId: string;
+  updatedData: { name: string };
+}
+
+interface UpdateFolderSuccessResponse {
+  message: string; // "Folder updated successfully"
+}
+interface UpdateFolderErrorResponse {
+  message: string;
+}
+
+// Fetch notes by folder
+interface FetchFolderNotesParams {
+  folderId: string;
+  pageNo: number;
+}
+
+// Define the Note type
+interface updateNoteData {
+  id: string | undefined;
+  folderId?: string | undefined;
+  title?: string;
+  content?: string;
+  search?: string;
+}
+interface SearchNotesResponse {
+  notes: Note[];
+}
+
+
+// Define the Note type
+export interface NoteData {
+  folderId?: string;
+  title?: string;
+  content?: string;
+  isFavorite?: boolean;
+  isArchived?: boolean;
+  Page?: number; //For making new Note at Top test
+}
 // Fetch recent notes
 export const useFetchRecentNotes = () => {
   return useQuery<NotesResponse>({
@@ -58,11 +104,8 @@ export const useFetchFolders = () => {
   });
 };
 
-//Newfolder creation payload
-interface NewFolder {
-  name: string;
-}
 
+//For Creating FOlders
 export const useCreateFolder = () => {
   const queryClient = useQueryClient();
 
@@ -77,19 +120,8 @@ export const useCreateFolder = () => {
   });
 };
 
-// updateFolder payload
-interface UpdateFolderPayload {
-  folderId: string;
-  updatedData: { name: string };
-}
 
-interface UpdateFolderSuccessResponse {
-  message: string; // "Folder updated successfully"
-}
-interface UpdateFolderErrorResponse {
-  message: string;
-}
-
+//For Updating FOlder Name
 export const useUpdateFolder = () => {
   const queryClient = useQueryClient();
 
@@ -114,12 +146,8 @@ export const useUpdateFolder = () => {
   });
 };
 
-// Fetch notes by folder
-interface FetchFolderNotesParams {
-  folderId: string;
-  pageNo: number;
-}
 
+//Folder Notes for MOre Section
 export const useFetchFolderNotes = ({
   folderId,
   pageNo,
@@ -127,8 +155,8 @@ export const useFetchFolderNotes = ({
   const queryParams = {
     folderId:
       folderId !== "favoriteNotes" &&
-      folderId !== "trashNotes" &&
-      folderId !== "archivedNotes"
+        folderId !== "trashNotes" &&
+        folderId !== "archivedNotes"
         ? folderId
         : undefined, // Pass folderId only if it's not a special case
     archived: folderId === "archivedNotes" ? true : false,
@@ -163,28 +191,14 @@ export const useFetchNote = (noteId: string | null) => {
   });
 };
 
-// Define the Note type
-export interface NoteData {
-  folderId?: string;
-  title?: string;
-  content?: string;
-  isFavorite?: boolean;
-  isArchived?: boolean;
-  Page?: number; //For making new Note at Top test
-}
+
 
 // Hook to create a new note
 export const useCreateNote = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (newNote: NoteData) => {
       const { data } = await AxiosApi.post(`/notes`, newNote);
-      // console.log(data);
       return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] }); // Refresh notes list
     },
   });
 };
@@ -206,7 +220,6 @@ export const useUpdateNote = (folderId: string, pageNo: number) => {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["note", variables.noteId] });
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
       queryClient.invalidateQueries({
         queryKey: ["folder-notes", folderId, pageNo],
       });
@@ -250,14 +263,7 @@ export const useRestoreNote = (folderId: string, pageNo: number) => {
   });
 };
 
-// Define the Note type
-interface updateNoteData {
-  id: string | undefined;
-  folderId?: string | undefined;
-  title?: string;
-  content?: string;
-  search?: string;
-}
+
 
 // saving a note with using debounce
 export const useSaveNote = (folderId: string, pageNo: number) => {
@@ -281,9 +287,7 @@ export const useSaveNote = (folderId: string, pageNo: number) => {
   });
 };
 
-interface SearchNotesResponse {
-  notes: Note[];
-}
+
 
 // notes according to search Text
 export const useSearchNotes = () => {

@@ -1,8 +1,16 @@
 import { useNavigate, useParams } from "react-router-dom";
 import restoreIcon from "../../assets/icons/restore.svg";
-import { useFetchNote, useRestoreNote } from "../../api/apiAxios";
+import { useFetchNote, useRestoreNote } from "../../api/apiHooks";
 import { showToast } from "../ToastProvider";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+
+const notifyRestored = () => {
+  showToast("Restored Successfully", "success");
+};
+
+const notifyError = () => {
+  showToast("Error Occurs", "error");
+};
 
 export default function RestoreNoteView() {
   const { folderId, noteId } = useParams() as {
@@ -13,24 +21,29 @@ export default function RestoreNoteView() {
   const [noteTitle, setNoteTitle] = useState("");
   const [noteFolderId, setNoteFolderId] = useState("");
   const { data } = useFetchNote(noteId || "");
-  const notifyRestored = () => {
-    showToast("Restored Successfully", "success");
-  };
-
-  const notifyError = () => {
-    showToast("Error Occurs", "error");
-  };
 
   const navigate = useNavigate();
 
-  const goBack = (noteId: string) => {
-    navigate(`/folder/${noteFolderId}/note/${noteId}`);
-    // if (folderId !== "trashNotes")
-    // // Navigates back to the home route
-    // else navigate(`/folder/${folderId}`);
-  };
+  const goBack = useCallback(
+    (noteId: string) => {
+      navigate(`/folder/${noteFolderId}/note/${noteId}`);
+    },
+    [navigate, noteFolderId]
+  );
 
-  const handleRestore = () => {
+  // const handleRestore = () => {
+  //   restoreNoteMutation.mutate(noteId, {
+  //     onSuccess: () => {
+  //       notifyRestored();
+  //       goBack(noteId);
+  //     },
+  //     onError: () => {
+  //       notifyError();
+  //     },
+  //   });
+  // };
+
+  const handleRestore = useCallback(() => {
     restoreNoteMutation.mutate(noteId, {
       onSuccess: () => {
         notifyRestored();
@@ -40,12 +53,11 @@ export default function RestoreNoteView() {
         notifyError();
       },
     });
-  };
+  }, [noteId, goBack, restoreNoteMutation]);
 
   useEffect(() => {
     if (data?.note?.title) setNoteTitle(data.note.title);
     if (data?.note?.folderId) setNoteFolderId(data.note.folderId);
-    // console.log(data);
   }, [data]);
 
   return (
