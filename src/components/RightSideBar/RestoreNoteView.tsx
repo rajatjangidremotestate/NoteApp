@@ -17,6 +17,7 @@ export default function RestoreNoteView() {
     folderId: string;
     noteId: string;
   };
+
   const restoreNoteMutation = useRestoreNote(folderId, 1);
   const [noteTitle, setNoteTitle] = useState("");
   const [noteFolderId, setNoteFolderId] = useState("");
@@ -30,18 +31,6 @@ export default function RestoreNoteView() {
     },
     [navigate, noteFolderId]
   );
-
-  // const handleRestore = () => {
-  //   restoreNoteMutation.mutate(noteId, {
-  //     onSuccess: () => {
-  //       notifyRestored();
-  //       goBack(noteId);
-  //     },
-  //     onError: () => {
-  //       notifyError();
-  //     },
-  //   });
-  // };
 
   const handleRestore = useCallback(() => {
     restoreNoteMutation.mutate(noteId, {
