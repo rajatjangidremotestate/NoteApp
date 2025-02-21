@@ -30,7 +30,7 @@ export default function RecentNotes({ title }: { title: string }) {
     <div className="flex flex-col gap-1 h-3/15">
       {/* Recents Heading  */}
       <div>
-        <p className="text-white px-5 font-custom opacity-60">Recent</p>
+        <p className="text-white px-5 font-custom opacity-60">Recent_02</p>
       </div>
       {isLoading && (
         <ul className="flex flex-col gap-1">
