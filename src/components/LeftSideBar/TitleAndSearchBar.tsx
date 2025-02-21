@@ -165,7 +165,7 @@ export default function TitleAndSearchBar({
       <div className="flex flex-row justify-between h-1/15 items-center px-5">
         {/* Title and pancile icon  */}
         <div className="flex gap-1.5 hover:cursor-pointer">
-          <p className="text-white custom-title">Nowted</p>
+          <p className="text-white custom-title">INotes</p>
           <img src={pancileIcon} alt="" className="h-4" />
         </div>
 
